@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pomodoro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #f5ede0;
+      --warm: #e8d5b7;
+      --terracotta: #c0522a;
+      --rust: #a03d1a;
+      --charcoal: #2a2118;
+      --muted: #8a7060;
+      --green: #4a7c59;
+      --green-light: #5e9970;
+      --shadow: rgba(42,33,24,0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      background: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(192,82,42,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(74,124,89,0.07) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      color: var(--charcoal);
+      padding: 2rem 1rem 4rem;
+    }
+
+    .app {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 2rem; width: 100%; max-width: 460px;
+    }
+
+    /* HEADER */
+    .header { text-align: center; }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem; font-weight: 900;
+      letter-spacing: -0.02em; color: var(--charcoal); line-height: 1;
+    }
+    .header h1 span { color: var(--terracotta); }
+    .header p { margin-top: 0.4rem; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+    /* MODES */
+    .modes {
+      display: flex; gap: 0.5rem;
+      background: var(--warm); padding: 0.35rem; border-radius: 50px;
+      box-shadow: inset 0 2px 6px var(--shadow);
+    }
+    .mode-btn {
+      padding: 0.45rem 1.2rem; border: none; background: transparent; border-radius: 50px;
+      font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.25s ease;
+    }
+    .mode-btn.active { background: var(--cream); color: var(--charcoal); box-shadow: 0 2px 8px var(--shadow); font-weight: 500; }
+
+    /* CLOCK */
+    .clock-wrap { position: relative; width: 280px; height: 280px; }
+    .clock-ring { position: absolute; inset: 0; }
+    .ring-bg { fill: none; stroke: var(--warm); stroke-width: 10; }
+    .ring-progress {
+      fill: none; stroke: var(--terracotta); stroke-width: 10; stroke-linecap: round;
+      transform: rotate(-90deg); transform-origin: 50% 50%;
+      transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+    }
+    .ring-progress.break { stroke: var(--green); }
+    .clock-inner {
+      position: absolute; inset: 20px; border-radius: 50%; background: var(--cream);
+      box-shadow: 0 8px 32px var(--shadow), inset 0 2px 8px rgba(255,255,255,0.6), 0 0 0 1px rgba(42,33,24,0.06);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
+    }
+    .time-display { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--charcoal); line-height: 1; }
+    .session-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+    /* CONTROLS */
+    .controls { display: flex; align-items: center; gap: 1.2rem; }
+    .btn-main {
+      width: 72px; height: 72px; border-radius: 50%; border: none;
+      background: var(--terracotta); color: var(--cream); font-size: 1.5rem; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(192,82,42,0.35), 0 2px 6px var(--shadow);
+      transition: all 0.18s ease; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-main:hover { background: var(--rust); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(192,82,42,0.4); }
+    .btn-main:active { transform: scale(0.96); }
+    .btn-main.break-mode { background: var(--green); box-shadow: 0 6px 20px rgba(74,124,89,0.35); }
+    .btn-main.break-mode:hover { background: var(--green-light); }
+    .btn-secondary {
+      width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--warm);
+      background: transparent; color: var(--muted); font-size: 1.1rem; cursor: pointer;
+      transition: all 0.18s ease; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-secondary:hover { border-color: var(--terracotta); color: var(--terracotta); background: rgba(192,82,42,0.06); }
+
+    /* STATS */
+    .stats { display: flex; gap: 2rem; }
+    .stat { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    .stat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--charcoal); line-height: 1; }
+    .stat-label { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .divider { width: 1px; height: 40px; background: var(--warm); margin: auto 0; }
+
+    /* TOMATOES */
+    .tomatoes { display: flex; gap: 0.5rem; align-items: center; }
+    .tomato { font-size: 1.2rem; opacity: 0.25; transition: opacity 0.3s ease, transform 0.3s ease; filter: grayscale(1); }
+    .tomato.done { opacity: 1; filter: none; transform: scale(1.15); }
+
+    /* NOTE MODAL */
+    .note-overlay {
+      position: fixed; inset: 0;
+      background: rgba(42,33,24,0.45); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .note-overlay.visible { opacity: 1; pointer-events: all; }
+    .note-card {
+      background: var(--cream); border-radius: 20px; padding: 2rem;
+      width: min(420px, 90vw);
+      box-shadow: 0 20px 60px rgba(42,33,24,0.3);
+      display: flex; flex-direction: column; gap: 1.2rem;
+      transform: translateY(16px); transition: transform 0.25s ease;
+    }
+    .note-overlay.visible .note-card { transform: translateY(0); }
+    .note-card-header { display: flex; align-items: center; justify-content: space-between; }
+    .note-card-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
+    .note-badge {
+      font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 20px;
+      background: var(--terracotta); color: var(--cream);
+    }
+    .note-badge.break { background: var(--green); }
+    .note-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+    .note-textarea {
+      width: 100%; background: var(--warm); border: 1.5px solid transparent;
+      border-radius: 10px; padding: 0.9rem 1rem;
+      font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--charcoal);
+      resize: vertical; min-height: 90px; outline: none; transition: border-color 0.2s;
+    }
+    .note-textarea:focus { border-color: var(--terracotta); }
+    .note-textarea.break-focus:focus { border-color: var(--green); }
+    .note-actions { display: flex; gap: 0.8rem; justify-content: flex-end; }
+    .note-skip {
+      background: none; border: 1.5px solid var(--warm); border-radius: 8px; padding: 0.6rem 1.2rem;
+      font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .note-skip:hover { border-color: var(--muted); color: var(--charcoal); }
+    .note-save {
+      background: var(--terracotta); border: none; border-radius: 8px; padding: 0.6rem 1.4rem;
+      font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
+      color: var(--cream); cursor: pointer; transition: all 0.15s;
+    }
+    .note-save:hover { background: var(--rust); }
+    .note-save.break { background: var(--green); }
+    .note-save.break:hover { background: var(--green-light); }
+
+    /* HISTORY */
+    .history-section { width: 100%; display: flex; flex-direction: column; gap: 1rem; }
+    .history-header { display: flex; align-items: center; justify-content: space-between; }
+    .history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+    .history-title span { color: var(--terracotta); font-size: 0.9rem; }
+    .export-btns { display: flex; gap: 0.5rem; }
+    .export-btn {
+      background: none; border: 1.5px solid var(--warm); border-radius: 8px;
+      padding: 0.35rem 0.8rem; font-family: 'DM Mono', monospace; font-size: 0.64rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .export-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+    .history-empty {
+      text-align: center; padding: 2rem; font-size: 0.72rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--warm); border: 1.5px dashed var(--warm); border-radius: 14px;
+    }
+    .history-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .history-item {
+      background: var(--warm); border-radius: 12px; padding: 0.9rem 1.1rem;
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 0.7rem; align-items: start;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .hi-icon { font-size: 1.3rem; margin-top: 2px; }
+    .hi-body { display: flex; flex-direction: column; gap: 0.2rem; }
+    .hi-top { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .hi-type { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; color: var(--terracotta); }
+    .hi-type.break { color: var(--green); }
+    .hi-duration { font-size: 0.62rem; color: var(--muted); }
+    .hi-note { font-size: 0.76rem; color: var(--charcoal); line-height: 1.5; }
+    .hi-note.empty { color: var(--muted); font-style: italic; }
+    .hi-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+    .hi-time { font-size: 0.6rem; color: var(--muted); white-space: nowrap; }
+    .hi-delete {
+      background: none; border: none; cursor: pointer;
+      color: rgba(138,112,96,0.4); font-size: 0.85rem;
+      padding: 0.2rem; border-radius: 4px; transition: color 0.15s; line-height: 1;
+    }
+    .hi-delete:hover { color: var(--terracotta); }
+
+    /* SETTINGS */
+    .settings-toggle {
+      background: none; border: none; font-size: 0.68rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); cursor: pointer;
+      padding: 0.3rem 0.8rem; border-radius: 20px; transition: all 0.2s; font-family: 'DM Mono', monospace;
+    }
+    .settings-toggle:hover { color: var(--terracotta); }
+    .settings-panel {
+      width: 100%; background: var(--warm); border-radius: 16px; padding: 1.4rem 1.6rem;
+      box-shadow: inset 0 2px 8px var(--shadow); display: none; flex-direction: column; gap: 1rem;
+    }
+    .settings-panel.open { display: flex; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; }
+    .setting-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .setting-ctrl { display: flex; align-items: center; gap: 0.6rem; }
+    .setting-ctrl button {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid rgba(42,33,24,0.15); background: var(--cream);
+      color: var(--charcoal); font-size: 1rem; cursor: pointer; line-height: 1; transition: all 0.15s;
+    }
+    .setting-ctrl button:hover { border-color: var(--terracotta); color: var(--terracotta); }
+    .setting-val { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; min-width: 2.2rem; text-align: center; }
+
+    /* PULSE */
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.06); opacity: 0; } }
+    .clock-wrap.done-pulse .clock-inner::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 3px solid var(--terracotta); animation: pulse-ring 0.6s ease-out 3;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--charcoal); color: var(--cream); padding: 0.7rem 1.4rem; border-radius: 50px;
+      font-size: 0.72rem; letter-spacing: 0.1em; opacity: 0; pointer-events: none;
+      transition: all 0.3s ease; white-space: nowrap; z-index: 200;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NOTE MODAL -->
+<div class="note-overlay" id="noteOverlay">
+  <div class="note-card">
+    <div class="note-card-header">
+      <div class="note-card-title" id="noteTitle">¡Sesión completada!</div>
+      <span class="note-badge" id="noteBadge">Foco</span>
+    </div>
+    <p id="notePrompt">¿En qué estuviste trabajando? Agregá una nota para el historial.</p>
+    <textarea class="note-textarea" id="noteInput" placeholder="Ej: terminé el módulo de login, revisé emails..." rows="3"></textarea>
+    <div class="note-actions">
+      <button class="note-skip" id="noteSkip">Saltar</button>
+      <button class="note-save" id="noteSave">Guardar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<div class="app">
+
+  <div class="header">
+    <h1>pomo<span>doro</span></h1>
+    <p>Técnica de enfoque profundo</p>
+  </div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="pomodoro">Foco</button>
+    <button class="mode-btn" data-mode="short">Descanso</button>
+    <button class="mode-btn" data-mode="long">Largo</button>
+  </div>
+
+  <div class="clock-wrap" id="clockWrap">
+    <svg class="clock-ring" viewBox="0 0 280 280">
+      <circle class="ring-bg" cx="140" cy="140" r="125"/>
+      <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="125"/>
+    </svg>
+    <div class="clock-inner">
+      <div class="time-display" id="timeDisplay">25:00</div>
+      <div class="session-label" id="sessionLabel">sesión de foco</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-secondary" id="btnReset" title="Reiniciar">↺</button>
+    <button class="btn-main" id="btnPlay">▶</button>
+    <button class="btn-secondary" id="btnSkip" title="Saltar">⇥</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" id="statPomodoros">0</div>
+      <div class="stat-label">Pomodoros</div>
+    </div>
+    <div class="divider"></div>
+    <div class="stat">
+      <div class="stat-val" id="statStreak">0</div>
+      <div class="stat-label">Racha</div>
+    </div>
+    <div class="divider"></div>
+    <div class="stat">
+      <div class="stat-val" id="statMinutes">0</div>
+      <div class="stat-label">Minutos</div>
+    </div>
+  </div>
+
+  <div class="tomatoes" id="tomatoRow">
+    <span class="tomato" data-i="0">🍅</span>
+    <span class="tomato" data-i="1">🍅</span>
+    <span class="tomato" data-i="2">🍅</span>
+    <span class="tomato" data-i="3">🍅</span>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <div class="history-header">
+      <div class="history-title">Historial <span id="histCount"></span></div>
+      <div class="export-btns">
+        <button class="export-btn" onclick="clearHistory()" style="color:#b04030;border-color:#dfc9b0">✕ Limpiar</button>
+        <button class="export-btn" onclick="exportCSV()">↓ CSV</button>
+        <button class="export-btn" onclick="exportJSON()">↓ JSON</button>
+      </div>
+    </div>
+    <div id="historyList">
+      <div class="history-empty">Aún no hay intervalos registrados</div>
+    </div>
+  </div>
+
+  <button class="settings-toggle" id="settingsToggle">⚙ ajustes</button>
+  <div class="settings-panel" id="settingsPanel">
+    <div class="setting-row">
+      <span class="setting-label">Foco (min)</span>
+      <div class="setting-ctrl">
+        <button onclick="changeSetting('pomodoro',-1)">−</button>
+        <span class="setting-val" id="setPomo">25</span>
+        <button onclick="changeSetting('pomodoro',1)">+</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Descanso corto</span>
+      <div class="setting-ctrl">
+        <button onclick="changeSetting('short',-1)">−</button>
+        <span class="setting-val" id="setShort">5</span>
+        <button onclick="changeSetting('short',1)">+</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Descanso largo</span>
+      <div class="setting-ctrl">
+        <button onclick="changeSetting('long',-1)">−</button>
+        <span class="setting-val" id="setLong">15</span>
+        <button onclick="changeSetting('long',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const CIRCUMFERENCE = 2 * Math.PI * 125;
+  const LABELS = {
+    pomodoro: { es: 'Foco',           icon: '🍅' },
+    short:    { es: 'Descanso corto', icon: '☕' },
+    long:     { es: 'Descanso largo', icon: '🌿' },
+  };
+
+  const state = {
+    settings: { pomodoro: 25, short: 5, long: 15 },
+    mode: 'pomodoro',
+    running: false,
+    totalSeconds: 25 * 60,
+    remaining: 25 * 60,
+    interval: null,
+    pomodoros: 0,
+    streak: 0,
+    totalMinutes: 0,
+    history: [],
+    pendingRecord: null,
+  };
+
+  // Load history
+  try {
+    const saved = JSON.parse(localStorage.getItem('pomodoro_history') || '[]');
+    if (Array.isArray(saved)) state.history = saved;
+  } catch(e){}
+
+  const ringProgress = document.getElementById('ringProgress');
+  ringProgress.style.strokeDasharray = CIRCUMFERENCE;
+
+  const pad = n => String(n).padStart(2,'0');
+  const fmtDate = ts => { const d=new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+  const fmtTime = ts => { const d=new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const fmtFull = ts => `${fmtDate(ts)} ${fmtTime(ts)}`;
+
+  /* DISPLAY */
+  function updateDisplay(){
+    const m = Math.floor(state.remaining/60), s = state.remaining%60;
+    document.getElementById('timeDisplay').textContent = `${pad(m)}:${pad(s)}`;
+    document.title = `${pad(m)}:${pad(s)} — Pomodoro`;
+    ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (state.remaining/state.totalSeconds);
+    const isBreak = state.mode !== 'pomodoro';
+    ringProgress.classList.toggle('break', isBreak);
+    document.getElementById('btnPlay').classList.toggle('break-mode', isBreak);
+  }
+
+  /* MODE */
+  function setMode(mode){
+    stopTimer();
+    state.mode = mode;
+    state.totalSeconds = state.settings[mode]*60;
+    state.remaining = state.totalSeconds;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
+    document.getElementById('sessionLabel').textContent =
+      mode==='pomodoro' ? 'sesión de foco' : mode==='short' ? 'descanso corto' : 'descanso largo';
+    document.getElementById('btnPlay').textContent = '▶';
+    updateDisplay();
+  }
+
+  /* TIMER */
+  function startTimer(){
+    if(state.remaining===0) resetTimer();
+    state.running = true;
+    document.getElementById('btnPlay').textContent = '⏸';
+    state.interval = setInterval(()=>{
+      state.remaining--;
+      if(state.remaining<=0){ state.remaining=0; updateDisplay(); onTimerEnd(); }
+      else { updateDisplay(); }
+    }, 1000);
+  }
+  function stopTimer(){
+    state.running = false;
+    clearInterval(state.interval);
+    document.getElementById('btnPlay').textContent = '▶';
+  }
+  function resetTimer(){
+    stopTimer();
+    state.totalSeconds = state.settings[state.mode]*60;
+    state.remaining = state.totalSeconds;
+    updateDisplay();
+  }
+
+  /* INTERVAL END */
+  function onTimerEnd(){
+    stopTimer(); playBeep(); pulseClock();
+    const mode = state.mode;
+    const dur  = state.settings[mode];
+
+    if(mode==='pomodoro'){
+      state.pomodoros++; state.streak++; state.totalMinutes += dur;
+      document.getElementById('statPomodoros').textContent = state.pomodoros;
+      document.getElementById('statStreak').textContent    = state.streak;
+      document.getElementById('statMinutes').textContent   = state.totalMinutes;
+      updateTomatoes();
+    }
+
+    const now = Date.now();
+    state.pendingRecord = {
+      id: now, type: mode,
+      typeLabel: LABELS[mode].es, icon: LABELS[mode].icon,
+      duration: dur,
+      startedAt: now - dur*60*1000,
+      completedAt: now,
+      note: '',
+    };
+
+    const nextMode = mode==='pomodoro'
+      ? (state.pomodoros%4===0 ? 'long' : 'short')
+      : 'pomodoro';
+
+    openNoteModal(mode, nextMode);
+  }
+
+  /* NOTE MODAL */
+  function openNoteModal(completedMode, nextMode){
+    const isBreak = completedMode !== 'pomodoro';
+    const overlay = document.getElementById('noteOverlay');
+    const input   = document.getElementById('noteInput');
+    const save    = document.getElementById('noteSave');
+
+    document.getElementById('noteBadge').textContent  = LABELS[completedMode].es;
+    document.getElementById('noteBadge').className    = 'note-badge' + (isBreak ? ' break' : '');
+    document.getElementById('noteTitle').textContent  = isBreak ? '¡Descanso terminado!' : '¡Sesión completada!';
+    document.getElementById('notePrompt').textContent = isBreak
+      ? '¿Cómo te sentís? Podés anotar algo sobre el descanso.'
+      : '¿Qué lograste en esta sesión? Dejá una nota.';
+    input.className  = 'note-textarea' + (isBreak ? ' break-focus' : '');
+    input.value      = '';
+    save.className   = 'note-save' + (isBreak ? ' break' : '');
+
+    overlay.classList.add('visible');
+    setTimeout(()=> input.focus(), 300);
+
+    const doSave = () => closeNoteModal(input.value.trim(), nextMode);
+    const doSkip = () => closeNoteModal('', nextMode);
+    save.onclick = doSave;
+    document.getElementById('noteSkip').onclick = doSkip;
+    input.onkeydown = e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSave(); } };
+  }
+
+  function closeNoteModal(note, nextMode){
+    document.getElementById('noteOverlay').classList.remove('visible');
+    if(state.pendingRecord){
+      state.pendingRecord.note = note;
+      state.history.unshift(state.pendingRecord);
+      state.pendingRecord = null;
+      saveHistory(); renderHistory();
+    }
+    setTimeout(()=> setMode(nextMode), 200);
+  }
+
+  /* HISTORY */
+  function saveHistory(){
+    try { localStorage.setItem('pomodoro_history', JSON.stringify(state.history)); } catch(e){}
+  }
+
+  function renderHistory(){
+    const list  = document.getElementById('historyList');
+    const count = document.getElementById('histCount');
+    count.textContent = state.history.length ? `(${state.history.length})` : '';
+
+    if(!state.history.length){
+      list.innerHTML = '<div class="history-empty">Aún no hay intervalos registrados</div>';
+      return;
+    }
+    const ul = document.createElement('div');
+    ul.className = 'history-list';
+    state.history.forEach(rec => {
+      const isBreak = rec.type !== 'pomodoro';
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="hi-icon">${rec.icon}</div>
+        <div class="hi-body">
+          <div class="hi-top">
+            <span class="hi-type${isBreak?' break':''}">${rec.typeLabel}</span>
+            <span class="hi-duration">${rec.duration} min</span>
+          </div>
+          <div class="hi-note${rec.note?'':' empty'}">${rec.note ? escHtml(rec.note) : 'Sin nota'}</div>
+        </div>
+        <div class="hi-meta">
+          <div class="hi-time">${fmtDate(rec.completedAt)}<br>${fmtTime(rec.completedAt)}</div>
+          <button class="hi-delete" data-id="${rec.id}" title="Eliminar">✕</button>
+        </div>`;
+      ul.appendChild(div);
+    });
+    list.innerHTML = '';
+    list.appendChild(ul);
+    // attach delete handlers
+    ul.querySelectorAll('.hi-delete').forEach(btn => {
+      btn.addEventListener('click', () => deleteRecord(Number(btn.dataset.id)));
+    });
+  }
+
+  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+  function deleteRecord(id){
+    state.history = state.history.filter(r => r.id !== id);
+    saveHistory(); renderHistory(); showToast('Entrada eliminada');
+  }
+
+  function clearHistory(){
+    if(!state.history.length) return;
+    if(!confirm('¿Borrar todo el historial?')) return;
+    state.history = []; saveHistory(); renderHistory(); showToast('Historial limpiado');
+  }
+
+  /* EXPORT */
+  function exportJSON(){
+    if(!state.history.length){ showToast('No hay datos para exportar'); return; }
+    download('pomodoro_historial.json', JSON.stringify(state.history, null, 2), 'application/json');
+    showToast('JSON descargado ✓');
+  }
+
+  function exportCSV(){
+    if(!state.history.length){ showToast('No hay datos para exportar'); return; }
+    const headers = ['id','tipo','tipo_label','duracion_min','iniciado','completado','nota'];
+    const rows = state.history.map(r => [
+      r.id, r.type, r.typeLabel, r.duration,
+      fmtFull(r.startedAt), fmtFull(r.completedAt),
+      `"${(r.note||'').replace(/"/g,'""').replace(/\n/g,' ')}"`,
+    ]);
+    download('pomodoro_historial.csv', [headers, ...rows].map(r=>r.join(',')).join('\n'), 'text/csv');
+    showToast('CSV descargado ✓');
+  }
+
+  function download(filename, content, mime){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content],{type:mime}));
+    a.download = filename; a.click();
+  }
+
+  /* MISC */
+  function updateTomatoes(){
+    const count = state.pomodoros%4;
+    document.querySelectorAll('.tomato').forEach((el,i)=> el.classList.toggle('done', i<(count===0?4:count)));
+  }
+  function pulseClock(){
+    const w = document.getElementById('clockWrap');
+    w.classList.add('done-pulse'); setTimeout(()=> w.classList.remove('done-pulse'), 2000);
+  }
+  function playBeep(){
+    try {
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      [523,659,784].forEach((freq,i)=>{
+        const osc=ctx.createOscillator(), gain=ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type='sine'; osc.frequency.value=freq;
+        gain.gain.setValueAtTime(0, ctx.currentTime+i*0.18);
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime+i*0.18+0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.18+0.4);
+        osc.start(ctx.currentTime+i*0.18); osc.stop(ctx.currentTime+i*0.18+0.5);
+      });
+    } catch(e){}
+  }
+  function changeSetting(key,delta){
+    state.settings[key] = Math.max(1, Math.min(key==='pomodoro'?60:30, state.settings[key]+delta));
+    document.getElementById(key==='pomodoro'?'setPomo':key==='short'?'setShort':'setLong').textContent = state.settings[key];
+    if(state.mode===key) resetTimer();
+  }
+  let toastTimer;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+  /* EVENTS */
+  document.getElementById('btnPlay').addEventListener('click', ()=> state.running ? stopTimer() : startTimer());
+  document.getElementById('btnReset').addEventListener('click', resetTimer);
+  document.getElementById('btnSkip').addEventListener('click', ()=>{
+    const modes=['pomodoro','short','long'];
+    setMode(modes[(modes.indexOf(state.mode)+1)%modes.length]);
+  });
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', ()=> setMode(btn.dataset.mode)));
+  document.getElementById('settingsToggle').addEventListener('click', ()=>
+    document.getElementById('settingsPanel').classList.toggle('open')
+  );
+  document.addEventListener('keydown', e=>{
+    if(e.code==='Space' && e.target.tagName!=='BUTTON' && e.target.tagName!=='TEXTAREA'){
+      e.preventDefault(); state.running ? stopTimer() : startTimer();
+    }
+  });
+
+  updateDisplay();
+  renderHistory();
+</script>
+</body>
+</html>
