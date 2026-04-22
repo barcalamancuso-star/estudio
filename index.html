@@ -1,269 +1,557 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="warm">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pomodoro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --cream: #f5ede0;
-      --warm: #e8d5b7;
-      --terracotta: #c0522a;
-      --rust: #a03d1a;
-      --charcoal: #2a2118;
-      --muted: #8a7060;
-      --green: #4a7c59;
-      --green-light: #5e9970;
-      --shadow: rgba(42,33,24,0.18);
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Pomodoro"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" id="themeColorMeta" content="#c0522a"/>
+<title>🍅 Pomodoro</title>
+<!-- PWA Icon inline -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23c0522a'/%3E%3Cellipse cx='96' cy='108' rx='60' ry='58' fill='%23e8503a'/%3E%3Cellipse cx='96' cy='106' rx='56' ry='52' fill='%23f06040'/%3E%3Crect x='88' y='36' width='8' height='28' rx='4' fill='%232d6a2d'/%3E%3Cellipse cx='84' cy='38' rx='12' ry='8' fill='%2340a040' transform='rotate(-20 84 38)'/%3E%3Ccircle cx='72' cy='88' r='6' fill='rgba(255,255,255,0.25)'/%3E%3Ctext x='96' y='122' text-anchor='middle' font-family='sans-serif' font-size='42' font-weight='bold' fill='white'%3E25%3C/text%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='19' r='12' fill='%23f06040'/%3E%3Crect x='14' y='5' width='4' height='8' rx='2' fill='%232d6a2d'/%3E%3Cellipse cx='12' cy='7' rx='5' ry='3' fill='%2340a040' transform='rotate(-20 12 7)'/%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════
+   THEME SYSTEM
+════════════════════════════════════════════ */
+:root {
+  --bg:#f5ede0; --surface:#f5ede0; --surface2:#e8d5b7; --surface3:#dcc9a8;
+  --text:#2a2118; --muted:#8a7060; --border:#dcc9a8;
+  --accent:#c0522a; --accent-hover:#a03d1a; --accent2:#4a7c59; --accent2-hover:#5e9970;
+  --shadow:rgba(42,33,24,0.18); --ring:rgba(192,82,42,0.3);
+  --radius:16px; --radius-sm:8px; --radius-full:50px;
+  --font-display:'Playfair Display',serif; --font-body:'DM Mono',monospace;
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+[data-theme="windows"] {
+  --bg:#f3f3f3; --surface:#ffffff; --surface2:#eeeeee; --surface3:#e0e0e0;
+  --text:#1a1a1a; --muted:#767676; --border:#d0d0d0;
+  --accent:#0078d4; --accent-hover:#006bbd; --accent2:#107c10; --accent2-hover:#0e6b0e;
+  --shadow:rgba(0,0,0,0.12); --ring:rgba(0,120,212,0.25);
+  --radius:8px; --radius-sm:4px; --radius-full:4px;
+  --font-display:'Segoe UI',system-ui,sans-serif; --font-body:'Segoe UI',system-ui,sans-serif;
+  --noise:none;
+}
+[data-theme="claude"] {
+  --bg:#1a1523; --surface:#231d2e; --surface2:#2d2540; --surface3:#382f4e;
+  --text:#f0eaff; --muted:#9b8db8; --border:#3d3455;
+  --accent:#d97706; --accent-hover:#b45309; --accent2:#8b5cf6; --accent2-hover:#7c3aed;
+  --shadow:rgba(0,0,0,0.4); --ring:rgba(217,119,6,0.3);
+  --radius:12px; --radius-sm:6px; --radius-full:50px;
+  --font-display:'Playfair Display',serif; --font-body:'DM Mono',monospace;
+  --noise:none;
+}
+[data-theme="linux"] {
+  --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --surface3:#30363d;
+  --text:#00ff41; --muted:#4a9050; --border:#30363d;
+  --accent:#00ff41; --accent-hover:#00cc33; --accent2:#00bfff; --accent2-hover:#00a0d4;
+  --shadow:rgba(0,255,65,0.1); --ring:rgba(0,255,65,0.2);
+  --radius:4px; --radius-sm:2px; --radius-full:4px;
+  --font-display:'JetBrains Mono','Courier New',monospace; --font-body:'JetBrains Mono','Courier New',monospace;
+  --noise:none;
+}
+[data-theme="mac"] {
+  --bg:#f5f5f7; --surface:#ffffff; --surface2:#f5f5f7; --surface3:#e8e8ed;
+  --text:#1d1d1f; --muted:#6e6e73; --border:#d2d2d7;
+  --accent:#0071e3; --accent-hover:#0077ed; --accent2:#30d158; --accent2-hover:#25a244;
+  --shadow:rgba(0,0,0,0.08); --ring:rgba(0,113,227,0.2);
+  --radius:14px; --radius-sm:8px; --radius-full:50px;
+  --font-display:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif; --font-body:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;
+  --noise:none;
+}
+[data-theme="android"] {
+  --bg:#fffbfe; --surface:#fffbfe; --surface2:#e6e0ec; --surface3:#d9d3e4;
+  --text:#1c1b1f; --muted:#625b71; --border:#cac4d0;
+  --accent:#6750a4; --accent-hover:#5b44a0; --accent2:#625b71; --accent2-hover:#504a65;
+  --shadow:rgba(103,80,164,0.15); --ring:rgba(103,80,164,0.25);
+  --radius:16px; --radius-sm:8px; --radius-full:50px;
+  --font-display:'Google Sans','Roboto',sans-serif; --font-body:'Roboto',sans-serif;
+  --noise:none;
+}
+[data-theme="iphone"] {
+  --bg:#f2f2f7; --surface:#ffffff; --surface2:#f2f2f7; --surface3:#e5e5ea;
+  --text:#000000; --muted:#8e8e93; --border:#c6c6c8;
+  --accent:#007aff; --accent-hover:#0066cc; --accent2:#34c759; --accent2-hover:#248a3d;
+  --shadow:rgba(0,0,0,0.08); --ring:rgba(0,122,255,0.2);
+  --radius:14px; --radius-sm:10px; --radius-full:50px;
+  --font-display:-apple-system,'SF Pro Display',sans-serif; --font-body:-apple-system,'SF Pro Text',sans-serif;
+  --noise:none;
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+/* ════════════════════════════════════════════
+   BASE
+════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh; background:var(--bg);
+  background-image:var(--noise);
+  font-family:var(--font-body); color:var(--text);
+  display:flex; flex-direction:column; align-items:center;
+  transition:background 0.3s, color 0.3s;
+}
+[data-theme="warm"] body { background-image: radial-gradient(ellipse at 20% 20%,rgba(192,82,42,.08) 0%,transparent 60%), radial-gradient(ellipse at 80% 80%,rgba(74,124,89,.07) 0%,transparent 60%), var(--noise); }
+[data-theme="claude"] body { background-image: radial-gradient(ellipse at 30% 20%,rgba(139,92,246,.08) 0%,transparent 50%), radial-gradient(ellipse at 70% 80%,rgba(217,119,6,.06) 0%,transparent 50%); }
+[data-theme="linux"] body { background-image: radial-gradient(ellipse at 50% 50%,rgba(0,255,65,.03) 0%,transparent 70%); }
+button{ cursor:pointer; font-family:var(--font-body); }
 
-    body {
-      min-height: 100vh;
-      background: var(--cream);
-      background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(192,82,42,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(74,124,89,0.07) 0%, transparent 60%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-family: 'DM Mono', monospace;
-      color: var(--charcoal);
-      padding: 2rem 1rem 4rem;
-    }
+/* ════════════════════════════════════════════
+   TOP BAR
+════════════════════════════════════════════ */
+.topbar{
+  width:100%; max-width:520px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 1rem 0;
+  gap:0.5rem;
+}
+.theme-group{ display:flex; gap:5px; flex-wrap:wrap; }
+.theme-dot{
+  width:22px; height:22px; border-radius:50%; border:2.5px solid transparent;
+  cursor:pointer; transition:transform 0.15s, border-color 0.15s;
+  position:relative;
+}
+.theme-dot:hover{ transform:scale(1.2); }
+.theme-dot.active{ border-color:var(--text); }
+.theme-dot[data-t="warm"]   { background:linear-gradient(135deg,#f5ede0,#c0522a); }
+.theme-dot[data-t="windows"]{ background:linear-gradient(135deg,#f3f3f3,#0078d4); }
+.theme-dot[data-t="claude"] { background:linear-gradient(135deg,#1a1523,#d97706); }
+.theme-dot[data-t="linux"]  { background:linear-gradient(135deg,#0d1117,#00ff41); }
+.theme-dot[data-t="mac"]    { background:linear-gradient(135deg,#f5f5f7,#0071e3); }
+.theme-dot[data-t="android"]{ background:linear-gradient(135deg,#fffbfe,#6750a4); }
+.theme-dot[data-t="iphone"] { background:linear-gradient(135deg,#f2f2f7,#007aff); }
+.theme-dot[data-t="warm"] title { display:none }
 
-    .app {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 2rem; width: 100%; max-width: 460px;
-    }
+.donate-btn{
+  background:none; border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); padding:0.35rem 0.8rem;
+  font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--muted); transition:all 0.15s; white-space:nowrap;
+}
+.donate-btn:hover{ border-color:var(--accent); color:var(--accent); }
 
-    /* HEADER */
-    .header { text-align: center; }
-    .header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.6rem; font-weight: 900;
-      letter-spacing: -0.02em; color: var(--charcoal); line-height: 1;
-    }
-    .header h1 span { color: var(--terracotta); }
-    .header p { margin-top: 0.4rem; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+/* ════════════════════════════════════════════
+   APP WRAPPER
+════════════════════════════════════════════ */
+.app{
+  display:flex; flex-direction:column; align-items:center;
+  width:100%; max-width:520px; padding:0 1rem 6rem;
+  gap:0;
+}
 
-    /* MODES */
-    .modes {
-      display: flex; gap: 0.5rem;
-      background: var(--warm); padding: 0.35rem; border-radius: 50px;
-      box-shadow: inset 0 2px 6px var(--shadow);
-    }
-    .mode-btn {
-      padding: 0.45rem 1.2rem; border: none; background: transparent; border-radius: 50px;
-      font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.25s ease;
-    }
-    .mode-btn.active { background: var(--cream); color: var(--charcoal); box-shadow: 0 2px 8px var(--shadow); font-weight: 500; }
+/* ════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════ */
+.header{ text-align:center; padding:1.5rem 0 1.2rem; }
+.header h1{
+  font-family:var(--font-display); font-size:2.4rem; font-weight:900;
+  letter-spacing:-0.02em; line-height:1;
+}
+[data-theme="linux"] .header h1{ font-size:1.6rem; letter-spacing:0.1em; text-transform:uppercase; }
+.header h1 span{ color:var(--accent); }
+.header p{ margin-top:0.3rem; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); }
 
-    /* CLOCK */
-    .clock-wrap { position: relative; width: 280px; height: 280px; }
-    .clock-ring { position: absolute; inset: 0; }
-    .ring-bg { fill: none; stroke: var(--warm); stroke-width: 10; }
-    .ring-progress {
-      fill: none; stroke: var(--terracotta); stroke-width: 10; stroke-linecap: round;
-      transform: rotate(-90deg); transform-origin: 50% 50%;
-      transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
-    }
-    .ring-progress.break { stroke: var(--green); }
-    .clock-inner {
-      position: absolute; inset: 20px; border-radius: 50%; background: var(--cream);
-      box-shadow: 0 8px 32px var(--shadow), inset 0 2px 8px rgba(255,255,255,0.6), 0 0 0 1px rgba(42,33,24,0.06);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
-    }
-    .time-display { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--charcoal); line-height: 1; }
-    .session-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+/* ════════════════════════════════════════════
+   BOTTOM NAV
+════════════════════════════════════════════ */
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0;
+  background:var(--surface); border-top:1px solid var(--border);
+  display:flex; z-index:50;
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.nav-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:0.5rem 0.2rem; border:none; background:transparent;
+  color:var(--muted); font-size:0.58rem; letter-spacing:0.08em; text-transform:uppercase;
+  gap:3px; transition:color 0.15s;
+}
+.nav-btn .nav-icon{ font-size:1.3rem; line-height:1; }
+.nav-btn.active{ color:var(--accent); }
+[data-theme="linux"] .nav-btn.active{ text-shadow:0 0 8px var(--accent); }
 
-    /* CONTROLS */
-    .controls { display: flex; align-items: center; gap: 1.2rem; }
-    .btn-main {
-      width: 72px; height: 72px; border-radius: 50%; border: none;
-      background: var(--terracotta); color: var(--cream); font-size: 1.5rem; cursor: pointer;
-      box-shadow: 0 6px 20px rgba(192,82,42,0.35), 0 2px 6px var(--shadow);
-      transition: all 0.18s ease; display: flex; align-items: center; justify-content: center;
-    }
-    .btn-main:hover { background: var(--rust); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(192,82,42,0.4); }
-    .btn-main:active { transform: scale(0.96); }
-    .btn-main.break-mode { background: var(--green); box-shadow: 0 6px 20px rgba(74,124,89,0.35); }
-    .btn-main.break-mode:hover { background: var(--green-light); }
-    .btn-secondary {
-      width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--warm);
-      background: transparent; color: var(--muted); font-size: 1.1rem; cursor: pointer;
-      transition: all 0.18s ease; display: flex; align-items: center; justify-content: center;
-    }
-    .btn-secondary:hover { border-color: var(--terracotta); color: var(--terracotta); background: rgba(192,82,42,0.06); }
+/* ════════════════════════════════════════════
+   TAB PANELS
+════════════════════════════════════════════ */
+.panel{ display:none; width:100%; flex-direction:column; align-items:center; gap:1.6rem; padding-top:0.5rem; }
+.panel.active{ display:flex; }
 
-    /* STATS */
-    .stats { display: flex; gap: 2rem; }
-    .stat { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
-    .stat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--charcoal); line-height: 1; }
-    .stat-label { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-    .divider { width: 1px; height: 40px; background: var(--warm); margin: auto 0; }
+/* ════════════════════════════════════════════
+   MODES (timer modes)
+════════════════════════════════════════════ */
+.modes{
+  display:flex; gap:0.4rem;
+  background:var(--surface2); padding:0.3rem; border-radius:var(--radius-full);
+  border:1px solid var(--border);
+}
+.mode-btn{
+  padding:0.4rem 1rem; border:none; background:transparent;
+  border-radius:var(--radius-full); font-family:var(--font-body);
+  font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--muted); transition:all 0.2s;
+}
+.mode-btn.active{
+  background:var(--surface); color:var(--text);
+  box-shadow:0 2px 8px var(--shadow); font-weight:500;
+}
 
-    /* TOMATOES */
-    .tomatoes { display: flex; gap: 0.5rem; align-items: center; }
-    .tomato { font-size: 1.2rem; opacity: 0.25; transition: opacity 0.3s ease, transform 0.3s ease; filter: grayscale(1); }
-    .tomato.done { opacity: 1; filter: none; transform: scale(1.15); }
+/* ════════════════════════════════════════════
+   CLOCK
+════════════════════════════════════════════ */
+.clock-wrap{ position:relative; width:260px; height:260px; }
+.clock-ring{ position:absolute; inset:0; }
+.ring-bg{ fill:none; stroke:var(--surface2); stroke-width:10; }
+.ring-progress{
+  fill:none; stroke:var(--accent); stroke-width:10; stroke-linecap:round;
+  transform:rotate(-90deg); transform-origin:50% 50%;
+  transition:stroke-dashoffset 1s linear, stroke 0.4s;
+}
+.ring-progress.break-ring{ stroke:var(--accent2); }
+[data-theme="linux"] .ring-progress{ filter:drop-shadow(0 0 6px var(--accent)); }
+.clock-inner{
+  position:absolute; inset:20px; border-radius:50%;
+  background:var(--surface);
+  box-shadow:0 6px 24px var(--shadow), inset 0 1px 4px rgba(255,255,255,0.06);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.15rem;
+  border:1px solid var(--border);
+}
+[data-theme="linux"] .clock-inner{ background:var(--bg); border:1px solid var(--accent); }
+.time-display{
+  font-family:var(--font-display); font-size:3.8rem; font-weight:700;
+  letter-spacing:-0.03em; line-height:1;
+}
+[data-theme="linux"] .time-display{ font-size:2.8rem; text-shadow:0 0 12px var(--accent); }
+.session-label{ font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); }
+.paused-badge{
+  font-size:0.56rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--accent); opacity:0; transition:opacity 0.3s;
+}
+.paused-badge.show{ opacity:1; }
 
-    /* NOTE MODAL */
-    .note-overlay {
-      position: fixed; inset: 0;
-      background: rgba(42,33,24,0.45); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-    }
-    .note-overlay.visible { opacity: 1; pointer-events: all; }
-    .note-card {
-      background: var(--cream); border-radius: 20px; padding: 2rem;
-      width: min(420px, 90vw);
-      box-shadow: 0 20px 60px rgba(42,33,24,0.3);
-      display: flex; flex-direction: column; gap: 1.2rem;
-      transform: translateY(16px); transition: transform 0.25s ease;
-    }
-    .note-overlay.visible .note-card { transform: translateY(0); }
-    .note-card-header { display: flex; align-items: center; justify-content: space-between; }
-    .note-card-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
-    .note-badge {
-      font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
-      padding: 0.3rem 0.8rem; border-radius: 20px;
-      background: var(--terracotta); color: var(--cream);
-    }
-    .note-badge.break { background: var(--green); }
-    .note-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
-    .note-textarea {
-      width: 100%; background: var(--warm); border: 1.5px solid transparent;
-      border-radius: 10px; padding: 0.9rem 1rem;
-      font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--charcoal);
-      resize: vertical; min-height: 90px; outline: none; transition: border-color 0.2s;
-    }
-    .note-textarea:focus { border-color: var(--terracotta); }
-    .note-textarea.break-focus:focus { border-color: var(--green); }
-    .note-actions { display: flex; gap: 0.8rem; justify-content: flex-end; }
-    .note-skip {
-      background: none; border: 1.5px solid var(--warm); border-radius: 8px; padding: 0.6rem 1.2rem;
-      font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
-      color: var(--muted); cursor: pointer; transition: all 0.15s;
-    }
-    .note-skip:hover { border-color: var(--muted); color: var(--charcoal); }
-    .note-save {
-      background: var(--terracotta); border: none; border-radius: 8px; padding: 0.6rem 1.4rem;
-      font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
-      color: var(--cream); cursor: pointer; transition: all 0.15s;
-    }
-    .note-save:hover { background: var(--rust); }
-    .note-save.break { background: var(--green); }
-    .note-save.break:hover { background: var(--green-light); }
+/* ════════════════════════════════════════════
+   CONTROLS
+════════════════════════════════════════════ */
+.controls{ display:flex; align-items:center; gap:1rem; }
+.btn-main{
+  width:68px; height:68px; border-radius:50%; border:none;
+  background:var(--accent); color:var(--surface);
+  font-size:1.4rem;
+  box-shadow:0 4px 16px var(--ring);
+  transition:all 0.18s; display:flex; align-items:center; justify-content:center;
+}
+.btn-main:hover{ background:var(--accent-hover); transform:translateY(-2px); }
+.btn-main:active{ transform:scale(0.95); }
+.btn-main.break-mode{ background:var(--accent2); }
+.btn-main.break-mode:hover{ background:var(--accent2-hover); }
+[data-theme="linux"] .btn-main{ border:1px solid var(--accent); border-radius:var(--radius); box-shadow:0 0 12px var(--shadow); }
+.btn-secondary{
+  width:44px; height:44px; border-radius:50%; border:1.5px solid var(--border);
+  background:transparent; color:var(--muted); font-size:1rem; transition:all 0.15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.btn-secondary:hover{ border-color:var(--accent); color:var(--accent); }
+[data-theme="linux"] .btn-secondary{ border-radius:var(--radius); }
 
-    /* HISTORY */
-    .history-section { width: 100%; display: flex; flex-direction: column; gap: 1rem; }
-    .history-header { display: flex; align-items: center; justify-content: space-between; }
-    .history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
-    .history-title span { color: var(--terracotta); font-size: 0.9rem; }
-    .export-btns { display: flex; gap: 0.5rem; }
-    .export-btn {
-      background: none; border: 1.5px solid var(--warm); border-radius: 8px;
-      padding: 0.35rem 0.8rem; font-family: 'DM Mono', monospace; font-size: 0.64rem;
-      letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.15s;
-    }
-    .export-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
-    .history-empty {
-      text-align: center; padding: 2rem; font-size: 0.72rem; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--warm); border: 1.5px dashed var(--warm); border-radius: 14px;
-    }
-    .history-list { display: flex; flex-direction: column; gap: 0.6rem; }
-    .history-item {
-      background: var(--warm); border-radius: 12px; padding: 0.9rem 1.1rem;
-      display: grid; grid-template-columns: auto 1fr auto;
-      gap: 0.7rem; align-items: start;
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-    .hi-icon { font-size: 1.3rem; margin-top: 2px; }
-    .hi-body { display: flex; flex-direction: column; gap: 0.2rem; }
-    .hi-top { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-    .hi-type { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; color: var(--terracotta); }
-    .hi-type.break { color: var(--green); }
-    .hi-duration { font-size: 0.62rem; color: var(--muted); }
-    .hi-note { font-size: 0.76rem; color: var(--charcoal); line-height: 1.5; }
-    .hi-note.empty { color: var(--muted); font-style: italic; }
-    .hi-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
-    .hi-time { font-size: 0.6rem; color: var(--muted); white-space: nowrap; }
-    .hi-delete {
-      background: none; border: none; cursor: pointer;
-      color: rgba(138,112,96,0.4); font-size: 0.85rem;
-      padding: 0.2rem; border-radius: 4px; transition: color 0.15s; line-height: 1;
-    }
-    .hi-delete:hover { color: var(--terracotta); }
+/* ════════════════════════════════════════════
+   STATS
+════════════════════════════════════════════ */
+.stats{ display:flex; gap:1.5rem; }
+.stat{ display:flex; flex-direction:column; align-items:center; gap:0.2rem; }
+.stat-val{ font-family:var(--font-display); font-size:1.7rem; font-weight:700; line-height:1; }
+[data-theme="linux"] .stat-val{ font-family:var(--font-body); font-size:1.4rem; text-shadow:0 0 8px var(--accent); }
+.stat-label{ font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+.vdivider{ width:1px; height:36px; background:var(--border); margin:auto 0; }
 
-    /* SETTINGS */
-    .settings-toggle {
-      background: none; border: none; font-size: 0.68rem; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--muted); cursor: pointer;
-      padding: 0.3rem 0.8rem; border-radius: 20px; transition: all 0.2s; font-family: 'DM Mono', monospace;
-    }
-    .settings-toggle:hover { color: var(--terracotta); }
-    .settings-panel {
-      width: 100%; background: var(--warm); border-radius: 16px; padding: 1.4rem 1.6rem;
-      box-shadow: inset 0 2px 8px var(--shadow); display: none; flex-direction: column; gap: 1rem;
-    }
-    .settings-panel.open { display: flex; }
-    .setting-row { display: flex; justify-content: space-between; align-items: center; }
-    .setting-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-    .setting-ctrl { display: flex; align-items: center; gap: 0.6rem; }
-    .setting-ctrl button {
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 1.5px solid rgba(42,33,24,0.15); background: var(--cream);
-      color: var(--charcoal); font-size: 1rem; cursor: pointer; line-height: 1; transition: all 0.15s;
-    }
-    .setting-ctrl button:hover { border-color: var(--terracotta); color: var(--terracotta); }
-    .setting-val { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; min-width: 2.2rem; text-align: center; }
+/* ════════════════════════════════════════════
+   TOMATOES
+════════════════════════════════════════════ */
+.tomatoes{ display:flex; gap:0.5rem; }
+.tomato{ font-size:1.1rem; opacity:0.2; transition:all 0.3s; filter:grayscale(1); }
+.tomato.done{ opacity:1; filter:none; transform:scale(1.15); }
 
-    /* PULSE */
-    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.06); opacity: 0; } }
-    .clock-wrap.done-pulse .clock-inner::after {
-      content: ''; position: absolute; inset: -4px; border-radius: 50%;
-      border: 3px solid var(--terracotta); animation: pulse-ring 0.6s ease-out 3;
-    }
+/* ════════════════════════════════════════════
+   HISTORY
+════════════════════════════════════════════ */
+.section-card{
+  width:100%; background:var(--surface2); border-radius:var(--radius);
+  border:1px solid var(--border); overflow:hidden;
+}
+.section-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.9rem 1.1rem; cursor:pointer;
+  border-bottom:1px solid transparent; transition:border-color 0.2s;
+}
+.section-header.open{ border-bottom-color:var(--border); }
+.section-title{ font-size:0.8rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; }
+.section-actions{ display:flex; gap:0.4rem; align-items:center; }
+.mini-btn{
+  background:none; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  padding:0.25rem 0.6rem; font-family:var(--font-body); font-size:0.6rem;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); transition:all 0.15s;
+}
+.mini-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.mini-btn.danger:hover{ color:#e03030; border-color:#e03030; }
+.section-body{ padding:0.8rem 1rem; display:none; flex-direction:column; gap:0.5rem; max-height:320px; overflow-y:auto; }
+.section-body.open{ display:flex; }
+.history-empty{ padding:1.5rem; text-align:center; font-size:0.7rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+.history-item{
+  display:grid; grid-template-columns:auto 1fr auto; gap:0.6rem; align-items:start;
+  padding:0.7rem 0.8rem; background:var(--surface); border-radius:var(--radius-sm);
+  border:1px solid var(--border); animation:fadeIn 0.25s ease;
+}
+@keyframes fadeIn{ from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)} }
+.hi-icon{ font-size:1.1rem; margin-top:1px; }
+.hi-body{ display:flex; flex-direction:column; gap:0.2rem; }
+.hi-top{ display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+.hi-type{ font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; color:var(--accent); }
+.hi-type.is-break{ color:var(--accent2); }
+.hi-dur{ font-size:0.6rem; color:var(--muted); }
+.hi-note{ font-size:0.74rem; line-height:1.4; }
+.hi-note.empty{ color:var(--muted); font-style:italic; }
+.hi-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:0.25rem; }
+.hi-time{ font-size:0.58rem; color:var(--muted); text-align:right; white-space:nowrap; }
+.hi-del{ background:none; border:none; color:var(--muted); font-size:0.8rem; opacity:0.4; padding:2px; transition:all 0.15s; border-radius:4px; }
+.hi-del:hover{ opacity:1; color:#e03030; }
 
-    /* TOAST */
-    .toast {
-      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: var(--charcoal); color: var(--cream); padding: 0.7rem 1.4rem; border-radius: 50px;
-      font-size: 0.72rem; letter-spacing: 0.1em; opacity: 0; pointer-events: none;
-      transition: all 0.3s ease; white-space: nowrap; z-index: 200;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  </style>
+/* ════════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════════ */
+.setting-row{ display:flex; justify-content:space-between; align-items:center; padding:0.2rem 0; }
+.setting-label{ font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+.setting-ctrl{ display:flex; align-items:center; gap:0.5rem; }
+.setting-ctrl button{
+  width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border);
+  background:var(--surface); color:var(--text); font-size:0.9rem; transition:all 0.15s;
+}
+.setting-ctrl button:hover{ border-color:var(--accent); color:var(--accent); }
+.setting-val{ font-family:var(--font-display); font-size:1rem; font-weight:700; min-width:2rem; text-align:center; }
+
+/* ════════════════════════════════════════════
+   NOTE MODAL
+════════════════════════════════════════════ */
+.overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center; z-index:200;
+  opacity:0; pointer-events:none; transition:opacity 0.25s;
+}
+.overlay.show{ opacity:1; pointer-events:all; }
+.modal-card{
+  background:var(--surface); border-radius:var(--radius); padding:1.8rem;
+  width:min(420px,90vw); border:1px solid var(--border);
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  transform:translateY(12px); transition:transform 0.25s;
+  display:flex; flex-direction:column; gap:1rem;
+}
+.overlay.show .modal-card{ transform:translateY(0); }
+.modal-header{ display:flex; align-items:center; justify-content:space-between; }
+.modal-title{ font-family:var(--font-display); font-size:1.2rem; font-weight:700; }
+.badge{
+  font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase;
+  padding:0.25rem 0.7rem; border-radius:var(--radius-full);
+  background:var(--accent); color:var(--surface);
+}
+.badge.break-badge{ background:var(--accent2); }
+.modal-hint{ font-size:0.72rem; color:var(--muted); line-height:1.5; }
+.note-ta{
+  width:100%; background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); padding:0.8rem; font-family:var(--font-body);
+  font-size:0.78rem; color:var(--text); resize:vertical; min-height:80px; outline:none;
+  transition:border-color 0.2s;
+}
+.note-ta:focus{ border-color:var(--accent); }
+.modal-actions{ display:flex; gap:0.7rem; justify-content:flex-end; }
+.btn-ghost{
+  background:none; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  padding:0.5rem 1rem; font-family:var(--font-body); font-size:0.7rem;
+  letter-spacing:0.08em; color:var(--muted); transition:all 0.15s;
+}
+.btn-ghost:hover{ border-color:var(--accent); color:var(--text); }
+.btn-solid{
+  background:var(--accent); border:none; border-radius:var(--radius-sm);
+  padding:0.5rem 1.2rem; font-family:var(--font-body); font-size:0.7rem;
+  letter-spacing:0.08em; color:var(--surface); transition:all 0.15s;
+}
+.btn-solid:hover{ background:var(--accent-hover); }
+.btn-solid.break-solid{ background:var(--accent2); }
+.btn-solid.break-solid:hover{ background:var(--accent2-hover); }
+
+/* ════════════════════════════════════════════
+   TECHNIQUE DETAIL MODAL
+════════════════════════════════════════════ */
+.tech-detail-body{ max-height:60vh; overflow-y:auto; }
+.tech-detail-body h3{ font-family:var(--font-display); font-size:1rem; margin-bottom:0.4rem; }
+.tech-detail-body p{ font-size:0.78rem; line-height:1.7; color:var(--muted); margin-bottom:0.8rem; }
+.tech-detail-body ul{ padding-left:1.2rem; }
+.tech-detail-body li{ font-size:0.76rem; line-height:1.6; color:var(--muted); margin-bottom:0.3rem; }
+.tech-detail-body strong{ color:var(--text); }
+
+/* ════════════════════════════════════════════
+   INFO PANEL (¿Qué es Pomodoro?)
+════════════════════════════════════════════ */
+.info-card{
+  width:100%; background:var(--surface2); border-radius:var(--radius);
+  border:1px solid var(--border); padding:1.4rem;
+}
+.info-card h2{ font-family:var(--font-display); font-size:1.5rem; font-weight:700; margin-bottom:0.6rem; }
+.info-card h2 span{ color:var(--accent); }
+.info-card p{ font-size:0.78rem; line-height:1.75; color:var(--muted); margin-bottom:0.8rem; }
+.info-steps{ display:flex; flex-direction:column; gap:0.6rem; margin:1rem 0; }
+.info-step{ display:flex; align-items:flex-start; gap:0.8rem; }
+.step-num{
+  width:28px; height:28px; border-radius:50%; background:var(--accent); color:var(--surface);
+  font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+}
+.step-text{ font-size:0.78rem; line-height:1.5; color:var(--text); }
+.step-text strong{ display:block; margin-bottom:0.1rem; }
+
+/* ════════════════════════════════════════════
+   TECHNIQUE CARDS
+════════════════════════════════════════════ */
+.tech-grid{ display:flex; flex-direction:column; gap:0.7rem; width:100%; }
+.tech-card{
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1rem 1.2rem; display:flex; align-items:center; gap:1rem;
+  transition:border-color 0.15s, box-shadow 0.15s; cursor:pointer;
+}
+.tech-card:hover{ border-color:var(--accent); box-shadow:0 2px 12px var(--shadow); }
+.tech-icon{ font-size:1.8rem; flex-shrink:0; }
+.tech-info{ flex:1; }
+.tech-name{ font-size:0.85rem; font-weight:600; margin-bottom:0.2rem; }
+.tech-desc{ font-size:0.7rem; color:var(--muted); line-height:1.4; }
+.tech-arrow{ color:var(--muted); font-size:0.9rem; }
+
+/* ════════════════════════════════════════════
+   MEDITATION
+════════════════════════════════════════════ */
+.med-grid{ display:flex; flex-direction:column; gap:0.7rem; width:100%; }
+.med-card{
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1rem 1.2rem;
+}
+.med-card-top{ display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem; }
+.med-icon{ font-size:1.6rem; }
+.med-info{ flex:1; }
+.med-name{ font-size:0.84rem; font-weight:600; }
+.med-meta{ font-size:0.65rem; color:var(--muted); margin-top:0.1rem; }
+.med-start-btn{
+  background:var(--accent2); border:none; border-radius:var(--radius-sm);
+  padding:0.4rem 0.9rem; font-family:var(--font-body); font-size:0.65rem;
+  letter-spacing:0.08em; text-transform:uppercase; color:var(--surface); transition:all 0.15s;
+}
+.med-start-btn:hover{ background:var(--accent2-hover); }
+.med-desc{ font-size:0.72rem; color:var(--muted); line-height:1.5; }
+
+/* active meditation UI */
+.med-active{
+  width:100%; background:var(--surface2); border-radius:var(--radius);
+  border:1px solid var(--accent2); padding:1.4rem; text-align:center;
+  display:none; flex-direction:column; align-items:center; gap:1rem;
+}
+.med-active.show{ display:flex; }
+.med-active-title{ font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--accent2); }
+.med-step-text{ font-size:0.88rem; line-height:1.6; color:var(--text); max-width:320px; }
+.med-progress-bar{ width:100%; height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+.med-progress-fill{ height:100%; background:var(--accent2); border-radius:4px; transition:width 1s linear; }
+.med-controls{ display:flex; gap:0.8rem; }
+.btn-med-stop{
+  background:none; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  padding:0.4rem 1rem; font-family:var(--font-body); font-size:0.68rem; color:var(--muted);
+  letter-spacing:0.08em; transition:all 0.15s;
+}
+.btn-med-stop:hover{ border-color:var(--accent); color:var(--text); }
+
+/* ════════════════════════════════════════════
+   TIPS
+════════════════════════════════════════════ */
+.tips-grid{ display:flex; flex-direction:column; gap:0.6rem; width:100%; }
+.tip-card{
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:0.9rem 1.1rem; display:flex; align-items:flex-start; gap:0.8rem;
+}
+.tip-emoji{ font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+.tip-body{ flex:1; }
+.tip-title{ font-size:0.78rem; font-weight:600; margin-bottom:0.2rem; }
+.tip-text{ font-size:0.71rem; color:var(--muted); line-height:1.5; }
+
+/* ════════════════════════════════════════════
+   DONATE MODAL
+════════════════════════════════════════════ */
+.donate-inner{ display:flex; flex-direction:column; gap:0.8rem; align-items:center; text-align:center; }
+.donate-inner .big-emoji{ font-size:2.5rem; }
+.donate-inner h3{ font-family:var(--font-display); font-size:1.3rem; font-weight:700; }
+.donate-inner p{ font-size:0.76rem; color:var(--muted); line-height:1.6; }
+.donate-link{
+  display:inline-block; background:var(--accent); color:var(--surface);
+  padding:0.7rem 1.6rem; border-radius:var(--radius-sm); font-size:0.75rem;
+  font-weight:600; text-decoration:none; letter-spacing:0.08em; margin-top:0.3rem;
+  transition:background 0.15s;
+}
+.donate-link:hover{ background:var(--accent-hover); }
+
+/* ════════════════════════════════════════════
+   PULSE + TOAST
+════════════════════════════════════════════ */
+@keyframes pulse-ring{ 0%{transform:scale(1);opacity:.8}100%{transform:scale(1.07);opacity:0} }
+.clock-wrap.pulsing .clock-inner::after{
+  content:''; position:absolute; inset:-4px; border-radius:50%;
+  border:2px solid var(--accent); animation:pulse-ring 0.7s ease-out 3;
+}
+.toast{
+  position:fixed; bottom:4.5rem; left:50%; transform:translateX(-50%) translateY(8px);
+  background:var(--text); color:var(--bg); padding:0.6rem 1.3rem; border-radius:var(--radius-full);
+  font-size:0.7rem; letter-spacing:0.08em; opacity:0; pointer-events:none;
+  transition:all 0.25s; white-space:nowrap; z-index:300;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ════════════════════════════════════════════
+   SCROLLBAR
+════════════════════════════════════════════ */
+::-webkit-scrollbar{ width:5px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:10px; }
+
+/* ════════════════════════════════════════════
+   VISIBILITY BADGE
+════════════════════════════════════════════ */
+.vis-banner{
+  width:100%; background:var(--accent); color:var(--surface); text-align:center;
+  padding:0.4rem; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase;
+  display:none;
+}
+.vis-banner.show{ display:block; }
+
+/* Windows theme extras */
+[data-theme="windows"] .btn-main{ border-radius:var(--radius); }
+[data-theme="windows"] .clock-inner{ border-radius:var(--radius); border:1px solid var(--border); }
+[data-theme="windows"] .clock-wrap{ width:240px; height:240px; }
+[data-theme="windows"] .ring-bg,.ring-progress{ rx:var(--radius); }
+</style>
 </head>
 <body>
 
-<!-- NOTE MODAL -->
-<div class="note-overlay" id="noteOverlay">
-  <div class="note-card">
-    <div class="note-card-header">
-      <div class="note-card-title" id="noteTitle">¡Sesión completada!</div>
-      <span class="note-badge" id="noteBadge">Foco</span>
-    </div>
-    <p id="notePrompt">¿En qué estuviste trabajando? Agregá una nota para el historial.</p>
-    <textarea class="note-textarea" id="noteInput" placeholder="Ej: terminé el módulo de login, revisé emails..." rows="3"></textarea>
-    <div class="note-actions">
-      <button class="note-skip" id="noteSkip">Saltar</button>
-      <button class="note-save" id="noteSave">Guardar →</button>
-    </div>
+<!-- VISIBILITY BANNER -->
+<div class="vis-banner" id="visBanner">⏸ Timer pausado — la página estaba en segundo plano</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="theme-group" id="themeGroup">
+    <div class="theme-dot active" data-t="warm" title="Cálido"></div>
+    <div class="theme-dot" data-t="windows" title="Windows"></div>
+    <div class="theme-dot" data-t="claude" title="Claude"></div>
+    <div class="theme-dot" data-t="linux" title="Linux"></div>
+    <div class="theme-dot" data-t="mac" title="macOS"></div>
+    <div class="theme-dot" data-t="android" title="Android"></div>
+    <div class="theme-dot" data-t="iphone" title="iPhone"></div>
   </div>
+  <button class="donate-btn" onclick="openDonate()">☕ Donar</button>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
+<!-- APP -->
 <div class="app">
 
   <div class="header">
@@ -271,385 +559,961 @@
     <p>Técnica de enfoque profundo</p>
   </div>
 
-  <div class="modes">
-    <button class="mode-btn active" data-mode="pomodoro">Foco</button>
-    <button class="mode-btn" data-mode="short">Descanso</button>
-    <button class="mode-btn" data-mode="long">Largo</button>
-  </div>
+  <!-- ── PANEL: TIMER ── -->
+  <div class="panel active" id="panelTimer">
 
-  <div class="clock-wrap" id="clockWrap">
-    <svg class="clock-ring" viewBox="0 0 280 280">
-      <circle class="ring-bg" cx="140" cy="140" r="125"/>
-      <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="125"/>
-    </svg>
-    <div class="clock-inner">
-      <div class="time-display" id="timeDisplay">25:00</div>
-      <div class="session-label" id="sessionLabel">sesión de foco</div>
+    <div class="modes">
+      <button class="mode-btn active" data-mode="pomodoro">Foco</button>
+      <button class="mode-btn" data-mode="short">Descanso</button>
+      <button class="mode-btn" data-mode="long">Largo</button>
     </div>
-  </div>
 
-  <div class="controls">
-    <button class="btn-secondary" id="btnReset" title="Reiniciar">↺</button>
-    <button class="btn-main" id="btnPlay">▶</button>
-    <button class="btn-secondary" id="btnSkip" title="Saltar">⇥</button>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-val" id="statPomodoros">0</div>
-      <div class="stat-label">Pomodoros</div>
-    </div>
-    <div class="divider"></div>
-    <div class="stat">
-      <div class="stat-val" id="statStreak">0</div>
-      <div class="stat-label">Racha</div>
-    </div>
-    <div class="divider"></div>
-    <div class="stat">
-      <div class="stat-val" id="statMinutes">0</div>
-      <div class="stat-label">Minutos</div>
-    </div>
-  </div>
-
-  <div class="tomatoes" id="tomatoRow">
-    <span class="tomato" data-i="0">🍅</span>
-    <span class="tomato" data-i="1">🍅</span>
-    <span class="tomato" data-i="2">🍅</span>
-    <span class="tomato" data-i="3">🍅</span>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="history-section">
-    <div class="history-header">
-      <div class="history-title">Historial <span id="histCount"></span></div>
-      <div class="export-btns">
-        <button class="export-btn" onclick="clearHistory()" style="color:#b04030;border-color:#dfc9b0">✕ Limpiar</button>
-        <button class="export-btn" onclick="exportCSV()">↓ CSV</button>
-        <button class="export-btn" onclick="exportJSON()">↓ JSON</button>
+    <div class="clock-wrap" id="clockWrap">
+      <svg class="clock-ring" viewBox="0 0 260 260">
+        <circle class="ring-bg" cx="130" cy="130" r="116"/>
+        <circle class="ring-progress" id="ringProgress" cx="130" cy="130" r="116"/>
+      </svg>
+      <div class="clock-inner">
+        <div class="time-display" id="timeDisplay">25:00</div>
+        <div class="session-label" id="sessionLabel">sesión de foco</div>
+        <div class="paused-badge" id="pausedBadge">en pausa</div>
       </div>
     </div>
-    <div id="historyList">
-      <div class="history-empty">Aún no hay intervalos registrados</div>
+
+    <div class="controls">
+      <button class="btn-secondary" id="btnReset" title="Reiniciar">↺</button>
+      <button class="btn-main" id="btnPlay">▶</button>
+      <button class="btn-secondary" id="btnSkip" title="Saltar">⇥</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="statPomodoros">0</div><div class="stat-label">Pomodoros</div></div>
+      <div class="vdivider"></div>
+      <div class="stat"><div class="stat-val" id="statStreak">0</div><div class="stat-label">Racha</div></div>
+      <div class="vdivider"></div>
+      <div class="stat"><div class="stat-val" id="statMinutes">0</div><div class="stat-label">Minutos</div></div>
+    </div>
+
+    <div class="tomatoes" id="tomatoRow">
+      <span class="tomato" data-i="0">🍅</span>
+      <span class="tomato" data-i="1">🍅</span>
+      <span class="tomato" data-i="2">🍅</span>
+      <span class="tomato" data-i="3">🍅</span>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="section-card" style="width:100%">
+      <div class="section-header" id="histHeader" onclick="toggleSection('hist')">
+        <span class="section-title">Historial <span id="histCount" style="opacity:0.5;font-weight:400"></span></span>
+        <div class="section-actions">
+          <button class="mini-btn danger" onclick="clearHistory(event)">✕ Limpiar</button>
+          <button class="mini-btn" onclick="exportCSV(event)">↓ CSV</button>
+          <button class="mini-btn" onclick="exportJSON(event)">↓ JSON</button>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:2px" id="histChevron">▼</span>
+        </div>
+      </div>
+      <div class="section-body" id="histBody">
+        <div class="history-empty" id="histEmpty">Aún no hay intervalos registrados</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="section-card" style="width:100%">
+      <div class="section-header" onclick="toggleSection('settings')">
+        <span class="section-title">⚙ Ajustes</span>
+        <span style="color:var(--muted);font-size:0.8rem" id="settingsChevron">▼</span>
+      </div>
+      <div class="section-body" id="settingsBody" style="gap:0.8rem">
+        <div class="setting-row">
+          <span class="setting-label">Foco (min)</span>
+          <div class="setting-ctrl">
+            <button onclick="changeSetting('pomodoro',-1)">−</button>
+            <span class="setting-val" id="setPomo">25</span>
+            <button onclick="changeSetting('pomodoro',1)">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Descanso corto</span>
+          <div class="setting-ctrl">
+            <button onclick="changeSetting('short',-1)">−</button>
+            <span class="setting-val" id="setShort">5</span>
+            <button onclick="changeSetting('short',1)">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Descanso largo</span>
+          <div class="setting-ctrl">
+            <button onclick="changeSetting('long',-1)">−</button>
+            <span class="setting-val" id="setLong">15</span>
+            <button onclick="changeSetting('long',1)">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Voz al terminar</span>
+          <div class="setting-ctrl">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.7rem;cursor:pointer">
+              <input type="checkbox" id="voiceToggle" checked style="accent-color:var(--accent)"/> Activada
+            </label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Alarma</span>
+          <div class="setting-ctrl">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.7rem;cursor:pointer">
+              <input type="checkbox" id="alarmToggle" checked style="accent-color:var(--accent)"/> Activada
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PANEL: QUÉ ES ── -->
+  <div class="panel" id="panelQue">
+    <div class="info-card">
+      <h2>¿Qué es el <span>Pomodoro</span>?</h2>
+      <p>La Técnica Pomodoro fue desarrollada por Francesco Cirillo a finales de los años 80. Usó un temporizador de cocina con forma de tomate (<em>pomodoro</em> en italiano) para dividir el trabajo en bloques de tiempo enfocados, separados por breves descansos.</p>
+      <p>La idea central es sencilla: trabajar en ráfagas cortas e intensas es más efectivo que hacerlo durante horas sin parar. Los descansos regulares previenen el agotamiento mental y mantienen el foco fresco.</p>
+
+      <div class="info-steps">
+        <div class="info-step"><div class="step-num">1</div><div class="step-text"><strong>Elegí una tarea</strong>Definí exactamente qué vas a trabajar antes de arrancar el timer.</div></div>
+        <div class="info-step"><div class="step-num">2</div><div class="step-text"><strong>Activá el Pomodoro</strong>Trabajá en esa sola tarea durante 25 minutos, sin interrupciones.</div></div>
+        <div class="info-step"><div class="step-num">3</div><div class="step-text"><strong>Tomá un descanso corto</strong>Descansá 5 minutos. Levantate, estirá, tomá agua.</div></div>
+        <div class="info-step"><div class="step-num">4</div><div class="step-text"><strong>Repetí x4</strong>Cada 4 Pomodoros completados, tomá un descanso largo de 15–30 min.</div></div>
+      </div>
+
+      <p><strong>¿Por qué funciona?</strong> La técnica aprovecha la <em>urgencia artificial</em> del timer para entrar en modo foco, mientras que los descansos programados reducen la ansiedad y mejoran la consolidación de memoria.</p>
     </div>
   </div>
 
-  <button class="settings-toggle" id="settingsToggle">⚙ ajustes</button>
-  <div class="settings-panel" id="settingsPanel">
-    <div class="setting-row">
-      <span class="setting-label">Foco (min)</span>
-      <div class="setting-ctrl">
-        <button onclick="changeSetting('pomodoro',-1)">−</button>
-        <span class="setting-val" id="setPomo">25</span>
-        <button onclick="changeSetting('pomodoro',1)">+</button>
-      </div>
+  <!-- ── PANEL: TÉCNICAS ── -->
+  <div class="panel" id="panelTecnicas">
+    <div style="width:100%;font-size:0.7rem;color:var(--muted);text-align:center;letter-spacing:0.1em;text-transform:uppercase">
+      Tap en cada técnica para ver más →
     </div>
-    <div class="setting-row">
-      <span class="setting-label">Descanso corto</span>
-      <div class="setting-ctrl">
-        <button onclick="changeSetting('short',-1)">−</button>
-        <span class="setting-val" id="setShort">5</span>
-        <button onclick="changeSetting('short',1)">+</button>
+    <div class="tech-grid">
+      <div class="tech-card" onclick="openTech('pomodoro')">
+        <div class="tech-icon">🍅</div>
+        <div class="tech-info"><div class="tech-name">Técnica Pomodoro</div><div class="tech-desc">Bloques de foco de 25 min con descansos programados</div></div>
+        <div class="tech-arrow">›</div>
       </div>
-    </div>
-    <div class="setting-row">
-      <span class="setting-label">Descanso largo</span>
-      <div class="setting-ctrl">
-        <button onclick="changeSetting('long',-1)">−</button>
-        <span class="setting-val" id="setLong">15</span>
-        <button onclick="changeSetting('long',1)">+</button>
+      <div class="tech-card" onclick="openTech('feynman')">
+        <div class="tech-icon">🧑‍🏫</div>
+        <div class="tech-info"><div class="tech-name">Método Feynman</div><div class="tech-desc">Aprendé explicando conceptos como si fueras el maestro</div></div>
+        <div class="tech-arrow">›</div>
+      </div>
+      <div class="tech-card" onclick="openTech('spaced')">
+        <div class="tech-icon">🗓️</div>
+        <div class="tech-info"><div class="tech-name">Repetición Espaciada</div><div class="tech-desc">Repasá en intervalos crecientes para memorizar a largo plazo</div></div>
+        <div class="tech-arrow">›</div>
+      </div>
+      <div class="tech-card" onclick="openTech('activerecall')">
+        <div class="tech-icon">🧠</div>
+        <div class="tech-info"><div class="tech-name">Active Recall</div><div class="tech-desc">Cerrá el libro y preguntate qué sabés. Es el mejor test.</div></div>
+        <div class="tech-arrow">›</div>
+      </div>
+      <div class="tech-card" onclick="openTech('cornell')">
+        <div class="tech-icon">📓</div>
+        <div class="tech-info"><div class="tech-name">Método Cornell</div><div class="tech-desc">Sistema de toma de notas estructurado para mayor retención</div></div>
+        <div class="tech-arrow">›</div>
+      </div>
+      <div class="tech-card" onclick="openTech('deepwork')">
+        <div class="tech-icon">⚡</div>
+        <div class="tech-info"><div class="tech-name">Deep Work</div><div class="tech-desc">Trabajo cognitivo sin distracciones al máximo de tu capacidad</div></div>
+        <div class="tech-arrow">›</div>
+      </div>
+      <div class="tech-card" onclick="openTech('mindmap')">
+        <div class="tech-icon">🗺️</div>
+        <div class="tech-info"><div class="tech-name">Mapas Mentales</div><div class="tech-desc">Organizá ideas visualmente para entender relaciones complejas</div></div>
+        <div class="tech-arrow">›</div>
       </div>
     </div>
   </div>
 
+  <!-- ── PANEL: MEDITACIÓN ── -->
+  <div class="panel" id="panelMed">
+
+    <!-- Active meditation display -->
+    <div class="med-active" id="medActive">
+      <div class="med-active-title" id="medActiveTitle">Respiración</div>
+      <div class="med-step-text" id="medStepText">Preparate...</div>
+      <div class="med-progress-bar"><div class="med-progress-fill" id="medProgressFill" style="width:0%"></div></div>
+      <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em" id="medTimeLeft"></div>
+      <div class="med-controls">
+        <button class="btn-med-stop" onclick="stopMeditation()">✕ Detener</button>
+      </div>
+    </div>
+
+    <div class="med-grid" id="medGrid">
+      <div class="med-card">
+        <div class="med-card-top">
+          <div class="med-icon">🌬️</div>
+          <div class="med-info"><div class="med-name">Respiración 4-7-8</div><div class="med-meta">3 minutos · Reducir estrés</div></div>
+          <button class="med-start-btn" onclick="startMeditation('breathing478')">Iniciar</button>
+        </div>
+        <div class="med-desc">Inhalá 4 segundos, retené 7 segundos, exhalá en 8. Activa el sistema nervioso parasimpático y calma la mente rápidamente.</div>
+      </div>
+      <div class="med-card">
+        <div class="med-card-top">
+          <div class="med-icon">🧘</div>
+          <div class="med-info"><div class="med-name">Mindfulness básico</div><div class="med-meta">5 minutos · Presencia plena</div></div>
+          <button class="med-start-btn" onclick="startMeditation('mindfulness')">Iniciar</button>
+        </div>
+        <div class="med-desc">Anclate en el momento presente observando tu respiración. Sin juzgar, sin forzar. Ideal entre sesiones de estudio.</div>
+      </div>
+      <div class="med-card">
+        <div class="med-card-top">
+          <div class="med-icon">🌊</div>
+          <div class="med-info"><div class="med-name">Escaneo corporal</div><div class="med-meta">7 minutos · Relajación profunda</div></div>
+          <button class="med-start-btn" onclick="startMeditation('bodyscan')">Iniciar</button>
+        </div>
+        <div class="med-desc">Recorré mentalmente cada parte de tu cuerpo liberando tensiones. Perfecto después de un descanso largo.</div>
+      </div>
+      <div class="med-card">
+        <div class="med-card-top">
+          <div class="med-icon">🎯</div>
+          <div class="med-info"><div class="med-name">Pre-estudio</div><div class="med-meta">4 minutos · Preparar el foco</div></div>
+          <button class="med-start-btn" onclick="startMeditation('prefocus')">Iniciar</button>
+        </div>
+        <div class="med-desc">Visualización guiada para activar tu mente antes de una sesión importante. Establecé intención y claridad.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: CONSEJOS ── -->
+  <div class="panel" id="panelConsejos">
+    <div class="tips-grid">
+      <div class="tip-card"><div class="tip-emoji">📵</div><div class="tip-body"><div class="tip-title">El teléfono es el enemigo #1</div><div class="tip-text">Poné el celular boca abajo o en otra habitación. Cada notificación te saca del modo foco y tardás hasta 23 min en recuperarlo completamente.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">💧</div><div class="tip-body"><div class="tip-title">Hidratate durante los descansos</div><div class="tip-text">La deshidratación leve afecta la concentración y la memoria. Tené agua siempre cerca. Los descansos son el momento ideal para tomar unos sorbos.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🎯</div><div class="tip-body"><div class="tip-title">Una sola tarea por Pomodoro</div><div class="tip-text">Antes de arrancar el timer, escribí exactamente qué vas a hacer. La claridad de la tarea es más importante que la disciplina del timer.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🧠</div><div class="tip-body"><div class="tip-title">Repasá dentro de las 24 horas</div><div class="tip-text">La curva del olvido de Ebbinghaus muestra que perdés el 70% de lo aprendido en 24h. Un repaso de 10 min al día siguiente lo fija a largo plazo.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🌅</div><div class="tip-body"><div class="tip-title">Los descansos son parte del proceso</div><div class="tip-text">No son tiempo perdido. El cerebro consolida información y restaura recursos cognitivos durante el descanso. Saltarlos reduce tu rendimiento total.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🎵</div><div class="tip-body"><div class="tip-title">Música para el foco</div><div class="tip-text">El ruido blanco, la lluvia o la música instrumental sin letra mejoran la concentración para tareas cognitivas. Las letras compiten con el lenguaje interno.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🏃</div><div class="tip-body"><div class="tip-title">Moverse en el descanso largo</div><div class="tip-text">Levantate, estirá o caminá unos minutos. El ejercicio leve aumenta el BDNF, una proteína que potencia el aprendizaje y la neuroplasticidad.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">✍️</div><div class="tip-body"><div class="tip-title">Anotá las interrupciones</div><div class="tip-text">Cuando algo te distrae (una idea, una tarea urgente), anótalo en papel y seguí. Tu cerebro se relaja porque sabe que no lo vas a olvidar.</div></div></div>
+      <div class="tip-card"><div class="tip-emoji">🌙</div><div class="tip-body"><div class="tip-title">El sueño > todo lo demás</div><div class="tip-text">Dormir 7–8 horas vale más que cualquier técnica de estudio. Durante el sueño se consolida la memoria declarativa y se limpian residuos neuronales.</div></div></div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-panel="Timer" onclick="showPanel('Timer')"><span class="nav-icon">⏱</span>Timer</button>
+  <button class="nav-btn" data-panel="Que" onclick="showPanel('Que')"><span class="nav-icon">📖</span>¿Qué es?</button>
+  <button class="nav-btn" data-panel="Tecnicas" onclick="showPanel('Tecnicas')"><span class="nav-icon">📚</span>Técnicas</button>
+  <button class="nav-btn" data-panel="Med" onclick="showPanel('Med')"><span class="nav-icon">🧘</span>Meditar</button>
+  <button class="nav-btn" data-panel="Consejos" onclick="showPanel('Consejos')"><span class="nav-icon">💡</span>Consejos</button>
+</nav>
+
+<!-- ── NOTE MODAL ── -->
+<div class="overlay" id="noteOverlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="noteTitle">¡Sesión completada!</div>
+      <span class="badge" id="noteBadge">Foco</span>
+    </div>
+    <p class="modal-hint" id="noteHint">¿Qué lograste en esta sesión?</p>
+    <textarea class="note-ta" id="noteInput" placeholder="Terminé el módulo 3, hice ejercicios de práctica..." rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="noteSkip">Saltar</button>
+      <button class="btn-solid" id="noteSave">Guardar →</button>
+    </div>
+  </div>
 </div>
 
+<!-- ── TECHNIQUE DETAIL MODAL ── -->
+<div class="overlay" id="techOverlay">
+  <div class="modal-card" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="techTitle">Técnica</div>
+      <button class="btn-ghost" onclick="closeTech()" style="padding:0.3rem 0.7rem;font-size:0.7rem">✕ Cerrar</button>
+    </div>
+    <div class="tech-detail-body" id="techBody"></div>
+  </div>
+</div>
+
+<!-- ── DONATE MODAL ── -->
+<div class="overlay" id="donateOverlay">
+  <div class="modal-card">
+    <div class="donate-inner">
+      <div class="big-emoji">☕</div>
+      <h3>¿Te fue útil?</h3>
+      <p>Esta app es completamente gratuita y sin publicidad. Si querés apoyar el desarrollo y que siga mejorando, podés invitarme un cafecito 🙂</p>
+      <a class="donate-link" href="https://cafecito.app/" target="_blank" rel="noopener">☕ Invitarme un cafecito</a>
+      <p style="font-size:0.65rem;margin-top:0.2rem">También podés hacer una transferencia a tu alias favorito.</p>
+    </div>
+    <div class="modal-actions" style="margin-top:0.5rem">
+      <button class="btn-ghost" onclick="closeDonate()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-  const CIRCUMFERENCE = 2 * Math.PI * 125;
-  const LABELS = {
-    pomodoro: { es: 'Foco',           icon: '🍅' },
-    short:    { es: 'Descanso corto', icon: '☕' },
-    long:     { es: 'Descanso largo', icon: '🌿' },
-  };
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const CIRC = 2 * Math.PI * 116;
+const LABELS = {
+  pomodoro:{ es:'Foco',           icon:'🍅' },
+  short:   { es:'Descanso corto', icon:'☕' },
+  long:    { es:'Descanso largo', icon:'🌿' },
+};
 
-  const state = {
-    settings: { pomodoro: 25, short: 5, long: 15 },
-    mode: 'pomodoro',
-    running: false,
-    totalSeconds: 25 * 60,
-    remaining: 25 * 60,
-    interval: null,
-    pomodoros: 0,
-    streak: 0,
-    totalMinutes: 0,
-    history: [],
-    pendingRecord: null,
-  };
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+const S = {
+  settings:{ pomodoro:25, short:5, long:15 },
+  mode:'pomodoro',
+  running:false,
+  totalSec:25*60,
+  remaining:25*60,
+  startedAt:null,       // wall-clock when last started
+  initialRem:25*60,     // remaining when last started
+  intervalId:null,
+  pomodoros:0, streak:0, totalMin:0,
+  history:[],
+  pending:null,
+};
 
-  // Load history
-  try {
-    const saved = JSON.parse(localStorage.getItem('pomodoro_history') || '[]');
-    if (Array.isArray(saved)) state.history = saved;
-  } catch(e){}
+/* Load saved history */
+try{ const h=JSON.parse(localStorage.getItem('pomo_hist')||'[]'); if(Array.isArray(h)) S.history=h; }catch(e){}
 
-  const ringProgress = document.getElementById('ringProgress');
-  ringProgress.style.strokeDasharray = CIRCUMFERENCE;
+/* ═══════════════════════════════════════════
+   INIT RING
+═══════════════════════════════════════════ */
+const ring = document.getElementById('ringProgress');
+ring.style.strokeDasharray = CIRC;
+ring.style.strokeDashoffset = 0;
 
-  const pad = n => String(n).padStart(2,'0');
-  const fmtDate = ts => { const d=new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
-  const fmtTime = ts => { const d=new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-  const fmtFull = ts => `${fmtDate(ts)} ${fmtTime(ts)}`;
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+const pad   = n => String(n).padStart(2,'0');
+const fmtD  = ts => { const d=new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmtT  = ts => { const d=new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fmtDT = ts => `${fmtD(ts)} ${fmtT(ts)}`;
+const esc   = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 
-  /* DISPLAY */
-  function updateDisplay(){
-    const m = Math.floor(state.remaining/60), s = state.remaining%60;
-    document.getElementById('timeDisplay').textContent = `${pad(m)}:${pad(s)}`;
-    document.title = `${pad(m)}:${pad(s)} — Pomodoro`;
-    ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (state.remaining/state.totalSeconds);
-    const isBreak = state.mode !== 'pomodoro';
-    ringProgress.classList.toggle('break', isBreak);
-    document.getElementById('btnPlay').classList.toggle('break-mode', isBreak);
-  }
+let toastTm;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTm); toastTm=setTimeout(()=>t.classList.remove('show'),2400);
+}
 
-  /* MODE */
-  function setMode(mode){
-    stopTimer();
-    state.mode = mode;
-    state.totalSeconds = state.settings[mode]*60;
-    state.remaining = state.totalSeconds;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
-    document.getElementById('sessionLabel').textContent =
-      mode==='pomodoro' ? 'sesión de foco' : mode==='short' ? 'descanso corto' : 'descanso largo';
-    document.getElementById('btnPlay').textContent = '▶';
-    updateDisplay();
-  }
+/* ═══════════════════════════════════════════
+   DISPLAY
+═══════════════════════════════════════════ */
+function updateDisplay(){
+  const m=Math.floor(S.remaining/60), s=S.remaining%60;
+  document.getElementById('timeDisplay').textContent=`${pad(m)}:${pad(s)}`;
+  document.title=`${pad(m)}:${pad(s)} — Pomodoro`;
+  ring.style.strokeDashoffset = CIRC*(S.remaining/S.totalSec);
+  const brk = S.mode!=='pomodoro';
+  ring.classList.toggle('break-ring',brk);
+  document.getElementById('btnPlay').classList.toggle('break-mode',brk);
+  document.getElementById('pausedBadge').classList.toggle('show', !S.running && S.remaining < S.totalSec && S.remaining > 0);
+}
 
-  /* TIMER */
-  function startTimer(){
-    if(state.remaining===0) resetTimer();
-    state.running = true;
-    document.getElementById('btnPlay').textContent = '⏸';
-    state.interval = setInterval(()=>{
-      state.remaining--;
-      if(state.remaining<=0){ state.remaining=0; updateDisplay(); onTimerEnd(); }
-      else { updateDisplay(); }
-    }, 1000);
-  }
-  function stopTimer(){
-    state.running = false;
-    clearInterval(state.interval);
-    document.getElementById('btnPlay').textContent = '▶';
-  }
-  function resetTimer(){
-    stopTimer();
-    state.totalSeconds = state.settings[state.mode]*60;
-    state.remaining = state.totalSeconds;
-    updateDisplay();
-  }
-
-  /* INTERVAL END */
-  function onTimerEnd(){
-    stopTimer(); playBeep(); pulseClock();
-    const mode = state.mode;
-    const dur  = state.settings[mode];
-
-    if(mode==='pomodoro'){
-      state.pomodoros++; state.streak++; state.totalMinutes += dur;
-      document.getElementById('statPomodoros').textContent = state.pomodoros;
-      document.getElementById('statStreak').textContent    = state.streak;
-      document.getElementById('statMinutes').textContent   = state.totalMinutes;
-      updateTomatoes();
-    }
-
-    const now = Date.now();
-    state.pendingRecord = {
-      id: now, type: mode,
-      typeLabel: LABELS[mode].es, icon: LABELS[mode].icon,
-      duration: dur,
-      startedAt: now - dur*60*1000,
-      completedAt: now,
-      note: '',
-    };
-
-    const nextMode = mode==='pomodoro'
-      ? (state.pomodoros%4===0 ? 'long' : 'short')
-      : 'pomodoro';
-
-    openNoteModal(mode, nextMode);
-  }
-
-  /* NOTE MODAL */
-  function openNoteModal(completedMode, nextMode){
-    const isBreak = completedMode !== 'pomodoro';
-    const overlay = document.getElementById('noteOverlay');
-    const input   = document.getElementById('noteInput');
-    const save    = document.getElementById('noteSave');
-
-    document.getElementById('noteBadge').textContent  = LABELS[completedMode].es;
-    document.getElementById('noteBadge').className    = 'note-badge' + (isBreak ? ' break' : '');
-    document.getElementById('noteTitle').textContent  = isBreak ? '¡Descanso terminado!' : '¡Sesión completada!';
-    document.getElementById('notePrompt').textContent = isBreak
-      ? '¿Cómo te sentís? Podés anotar algo sobre el descanso.'
-      : '¿Qué lograste en esta sesión? Dejá una nota.';
-    input.className  = 'note-textarea' + (isBreak ? ' break-focus' : '');
-    input.value      = '';
-    save.className   = 'note-save' + (isBreak ? ' break' : '');
-
-    overlay.classList.add('visible');
-    setTimeout(()=> input.focus(), 300);
-
-    const doSave = () => closeNoteModal(input.value.trim(), nextMode);
-    const doSkip = () => closeNoteModal('', nextMode);
-    save.onclick = doSave;
-    document.getElementById('noteSkip').onclick = doSkip;
-    input.onkeydown = e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSave(); } };
-  }
-
-  function closeNoteModal(note, nextMode){
-    document.getElementById('noteOverlay').classList.remove('visible');
-    if(state.pendingRecord){
-      state.pendingRecord.note = note;
-      state.history.unshift(state.pendingRecord);
-      state.pendingRecord = null;
-      saveHistory(); renderHistory();
-    }
-    setTimeout(()=> setMode(nextMode), 200);
-  }
-
-  /* HISTORY */
-  function saveHistory(){
-    try { localStorage.setItem('pomodoro_history', JSON.stringify(state.history)); } catch(e){}
-  }
-
-  function renderHistory(){
-    const list  = document.getElementById('historyList');
-    const count = document.getElementById('histCount');
-    count.textContent = state.history.length ? `(${state.history.length})` : '';
-
-    if(!state.history.length){
-      list.innerHTML = '<div class="history-empty">Aún no hay intervalos registrados</div>';
-      return;
-    }
-    const ul = document.createElement('div');
-    ul.className = 'history-list';
-    state.history.forEach(rec => {
-      const isBreak = rec.type !== 'pomodoro';
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.innerHTML = `
-        <div class="hi-icon">${rec.icon}</div>
-        <div class="hi-body">
-          <div class="hi-top">
-            <span class="hi-type${isBreak?' break':''}">${rec.typeLabel}</span>
-            <span class="hi-duration">${rec.duration} min</span>
-          </div>
-          <div class="hi-note${rec.note?'':' empty'}">${rec.note ? escHtml(rec.note) : 'Sin nota'}</div>
-        </div>
-        <div class="hi-meta">
-          <div class="hi-time">${fmtDate(rec.completedAt)}<br>${fmtTime(rec.completedAt)}</div>
-          <button class="hi-delete" data-id="${rec.id}" title="Eliminar">✕</button>
-        </div>`;
-      ul.appendChild(div);
-    });
-    list.innerHTML = '';
-    list.appendChild(ul);
-    // attach delete handlers
-    ul.querySelectorAll('.hi-delete').forEach(btn => {
-      btn.addEventListener('click', () => deleteRecord(Number(btn.dataset.id)));
-    });
-  }
-
-  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-
-  function deleteRecord(id){
-    state.history = state.history.filter(r => r.id !== id);
-    saveHistory(); renderHistory(); showToast('Entrada eliminada');
-  }
-
-  function clearHistory(){
-    if(!state.history.length) return;
-    if(!confirm('¿Borrar todo el historial?')) return;
-    state.history = []; saveHistory(); renderHistory(); showToast('Historial limpiado');
-  }
-
-  /* EXPORT */
-  function exportJSON(){
-    if(!state.history.length){ showToast('No hay datos para exportar'); return; }
-    download('pomodoro_historial.json', JSON.stringify(state.history, null, 2), 'application/json');
-    showToast('JSON descargado ✓');
-  }
-
-  function exportCSV(){
-    if(!state.history.length){ showToast('No hay datos para exportar'); return; }
-    const headers = ['id','tipo','tipo_label','duracion_min','iniciado','completado','nota'];
-    const rows = state.history.map(r => [
-      r.id, r.type, r.typeLabel, r.duration,
-      fmtFull(r.startedAt), fmtFull(r.completedAt),
-      `"${(r.note||'').replace(/"/g,'""').replace(/\n/g,' ')}"`,
-    ]);
-    download('pomodoro_historial.csv', [headers, ...rows].map(r=>r.join(',')).join('\n'), 'text/csv');
-    showToast('CSV descargado ✓');
-  }
-
-  function download(filename, content, mime){
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([content],{type:mime}));
-    a.download = filename; a.click();
-  }
-
-  /* MISC */
-  function updateTomatoes(){
-    const count = state.pomodoros%4;
-    document.querySelectorAll('.tomato').forEach((el,i)=> el.classList.toggle('done', i<(count===0?4:count)));
-  }
-  function pulseClock(){
-    const w = document.getElementById('clockWrap');
-    w.classList.add('done-pulse'); setTimeout(()=> w.classList.remove('done-pulse'), 2000);
-  }
-  function playBeep(){
-    try {
-      const ctx = new (window.AudioContext||window.webkitAudioContext)();
-      [523,659,784].forEach((freq,i)=>{
-        const osc=ctx.createOscillator(), gain=ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type='sine'; osc.frequency.value=freq;
-        gain.gain.setValueAtTime(0, ctx.currentTime+i*0.18);
-        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime+i*0.18+0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.18+0.4);
-        osc.start(ctx.currentTime+i*0.18); osc.stop(ctx.currentTime+i*0.18+0.5);
-      });
-    } catch(e){}
-  }
-  function changeSetting(key,delta){
-    state.settings[key] = Math.max(1, Math.min(key==='pomodoro'?60:30, state.settings[key]+delta));
-    document.getElementById(key==='pomodoro'?'setPomo':key==='short'?'setShort':'setLong').textContent = state.settings[key];
-    if(state.mode===key) resetTimer();
-  }
-  let toastTimer;
-  function showToast(msg){
-    const t=document.getElementById('toast');
-    t.textContent=msg; t.classList.add('show');
-    clearTimeout(toastTimer); toastTimer=setTimeout(()=> t.classList.remove('show'), 2200);
-  }
-
-  /* EVENTS */
-  document.getElementById('btnPlay').addEventListener('click', ()=> state.running ? stopTimer() : startTimer());
-  document.getElementById('btnReset').addEventListener('click', resetTimer);
-  document.getElementById('btnSkip').addEventListener('click', ()=>{
-    const modes=['pomodoro','short','long'];
-    setMode(modes[(modes.indexOf(state.mode)+1)%modes.length]);
-  });
-  document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', ()=> setMode(btn.dataset.mode)));
-  document.getElementById('settingsToggle').addEventListener('click', ()=>
-    document.getElementById('settingsPanel').classList.toggle('open')
-  );
-  document.addEventListener('keydown', e=>{
-    if(e.code==='Space' && e.target.tagName!=='BUTTON' && e.target.tagName!=='TEXTAREA'){
-      e.preventDefault(); state.running ? stopTimer() : startTimer();
-    }
-  });
-
+/* ═══════════════════════════════════════════
+   MODE
+═══════════════════════════════════════════ */
+function setMode(mode){
+  stopTimer();
+  S.mode=mode; S.totalSec=S.settings[mode]*60; S.remaining=S.totalSec;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.getElementById('sessionLabel').textContent =
+    mode==='pomodoro'?'sesión de foco':mode==='short'?'descanso corto':'descanso largo';
+  document.getElementById('btnPlay').textContent='▶';
   updateDisplay();
-  renderHistory();
+}
+
+/* ═══════════════════════════════════════════
+   TIMER — uses wall-clock for accuracy
+═══════════════════════════════════════════ */
+function startTimer(){
+  if(S.remaining===0) resetTimer();
+  S.running=true;
+  S.startedAt=Date.now();
+  S.initialRem=S.remaining;
+  document.getElementById('btnPlay').textContent='⏸';
+  document.getElementById('pausedBadge').classList.remove('show');
+
+  S.intervalId=setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-S.startedAt)/1000);
+    S.remaining=Math.max(0, S.initialRem - elapsed);
+    updateDisplay();
+    if(S.remaining<=0){ onTimerEnd(); }
+  }, 500);
+}
+
+function stopTimer(){
+  S.running=false;
+  clearInterval(S.intervalId);
+  document.getElementById('btnPlay').textContent='▶';
+}
+
+function resetTimer(){
+  stopTimer();
+  S.totalSec=S.settings[S.mode]*60; S.remaining=S.totalSec;
+  updateDisplay();
+}
+
+/* ═══════════════════════════════════════════
+   PAGE VISIBILITY — most important fix!
+═══════════════════════════════════════════ */
+document.addEventListener('visibilitychange',()=>{
+  if(!S.running) return;
+
+  if(document.hidden){
+    // Tab went hidden — stop interval but keep wall-clock ref
+    clearInterval(S.intervalId);
+    S.intervalId=null;
+  } else {
+    // Tab came back — recalculate elapsed from wall clock
+    const elapsed=Math.floor((Date.now()-S.startedAt)/1000);
+    S.remaining=Math.max(0, S.initialRem - elapsed);
+    updateDisplay();
+
+    if(S.remaining<=0){
+      onTimerEnd();
+    } else {
+      // Restart interval
+      S.intervalId=setInterval(()=>{
+        const el=Math.floor((Date.now()-S.startedAt)/1000);
+        S.remaining=Math.max(0, S.initialRem - el);
+        updateDisplay();
+        if(S.remaining<=0) onTimerEnd();
+      },500);
+    }
+  }
+});
+
+/* ═══════════════════════════════════════════
+   TIMER END
+═══════════════════════════════════════════ */
+function onTimerEnd(){
+  stopTimer(); pulseClock();
+  if(document.getElementById('alarmToggle').checked) playAlarm();
+
+  const mode=S.mode, dur=S.settings[mode];
+
+  if(mode==='pomodoro'){
+    S.pomodoros++; S.streak++; S.totalMin+=dur;
+    document.getElementById('statPomodoros').textContent=S.pomodoros;
+    document.getElementById('statStreak').textContent=S.streak;
+    document.getElementById('statMinutes').textContent=S.totalMin;
+    updateTomatoes();
+  }
+
+  const now=Date.now();
+  S.pending={
+    id:now, type:mode,
+    typeLabel:LABELS[mode].es, icon:LABELS[mode].icon,
+    duration:dur,
+    startedAt:now-dur*60*1000, completedAt:now,
+    note:'',
+  };
+
+  const next=mode==='pomodoro'?(S.pomodoros%4===0?'long':'short'):'pomodoro';
+
+  // Voice announcement
+  if(document.getElementById('voiceToggle').checked){
+    const isBreak=mode==='pomodoro';
+    const msgs=[
+      isBreak
+        ? ['¡Excelente trabajo!','Es hora de descansar.','Tomá unos minutos para relajarte.']
+        : ['¡Descansaste bien!','Es hora de volver al foco.','¡Vamos, podés hacerlo!'],
+    ];
+    speakSequence(msgs[0]);
+  }
+
+  openNoteModal(mode, next);
+}
+
+/* ═══════════════════════════════════════════
+   NOTE MODAL
+═══════════════════════════════════════════ */
+function openNoteModal(completedMode, nextMode){
+  const brk=completedMode!=='pomodoro';
+  document.getElementById('noteBadge').textContent=LABELS[completedMode].es;
+  document.getElementById('noteBadge').className='badge'+(brk?' break-badge':'');
+  document.getElementById('noteTitle').textContent=brk?'¡Descanso terminado!':'¡Pomodoro completado!';
+  document.getElementById('noteHint').textContent=brk
+    ?'¿Cómo te sentís? Podés dejar una nota sobre el descanso.'
+    :'¿Qué lograste? Dejá una nota para tu historial.';
+  document.getElementById('noteSave').className='btn-solid'+(brk?' break-solid':'');
+  document.getElementById('noteInput').value='';
+  document.getElementById('noteOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('noteInput').focus(),300);
+
+  const doSave=()=>closeNoteModal(document.getElementById('noteInput').value.trim(),nextMode);
+  const doSkip=()=>closeNoteModal('',nextMode);
+  document.getElementById('noteSave').onclick=doSave;
+  document.getElementById('noteSkip').onclick=doSkip;
+  document.getElementById('noteInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSave();}};
+}
+
+function closeNoteModal(note, nextMode){
+  document.getElementById('noteOverlay').classList.remove('show');
+  if(S.pending){
+    S.pending.note=note;
+    S.history.unshift(S.pending);
+    S.pending=null;
+    saveHistory(); renderHistory();
+  }
+  setTimeout(()=>setMode(nextMode),200);
+}
+
+/* ═══════════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════════ */
+function saveHistory(){ try{localStorage.setItem('pomo_hist',JSON.stringify(S.history));}catch(e){} }
+
+function renderHistory(){
+  const body=document.getElementById('histBody');
+  const cnt=document.getElementById('histCount');
+  cnt.textContent=S.history.length?`(${S.history.length})`:'';
+
+  if(!S.history.length){
+    body.innerHTML='<div class="history-empty">Aún no hay intervalos registrados</div>';
+    return;
+  }
+  const ul=document.createElement('div');
+  ul.style.cssText='display:flex;flex-direction:column;gap:0.5rem';
+  S.history.forEach(r=>{
+    const brk=r.type!=='pomodoro';
+    const div=document.createElement('div');
+    div.className='history-item';
+    div.innerHTML=`
+      <div class="hi-icon">${r.icon}</div>
+      <div class="hi-body">
+        <div class="hi-top">
+          <span class="hi-type${brk?' is-break':''}">${r.typeLabel}</span>
+          <span class="hi-dur">${r.duration} min</span>
+        </div>
+        <div class="hi-note${r.note?'':' empty'}">${r.note?esc(r.note):'Sin nota'}</div>
+      </div>
+      <div class="hi-meta">
+        <div class="hi-time">${fmtD(r.completedAt)}<br>${fmtT(r.completedAt)}</div>
+        <button class="hi-del" data-id="${r.id}">✕</button>
+      </div>`;
+    ul.appendChild(div);
+  });
+  body.innerHTML='';
+  body.appendChild(ul);
+  ul.querySelectorAll('.hi-del').forEach(b=>b.addEventListener('click',()=>{
+    S.history=S.history.filter(r=>r.id!==Number(b.dataset.id));
+    saveHistory(); renderHistory(); showToast('Eliminado');
+  }));
+}
+
+function clearHistory(e){
+  if(e) e.stopPropagation();
+  if(!S.history.length){showToast('Historial vacío');return;}
+  if(!confirm('¿Borrar todo el historial?')) return;
+  S.history=[]; saveHistory(); renderHistory(); showToast('Historial limpiado');
+}
+
+/* ═══════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════ */
+function exportJSON(e){
+  if(e) e.stopPropagation();
+  if(!S.history.length){showToast('No hay datos');return;}
+  dl('pomo_historial.json',JSON.stringify(S.history,null,2),'application/json');
+  showToast('JSON descargado ✓');
+}
+function exportCSV(e){
+  if(e) e.stopPropagation();
+  if(!S.history.length){showToast('No hay datos');return;}
+  const hdr=['id','tipo','tipo_label','duracion_min','iniciado','completado','nota'];
+  const rows=S.history.map(r=>[
+    r.id,r.type,r.typeLabel,r.duration,
+    fmtDT(r.startedAt),fmtDT(r.completedAt),
+    `"${(r.note||'').replace(/"/g,'""').replace(/\n/g,' ')}"`,
+  ]);
+  dl('pomo_historial.csv',[hdr,...rows].map(r=>r.join(',')).join('\n'),'text/csv');
+  showToast('CSV descargado ✓');
+}
+function dl(name,content,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=name; a.click();
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════ */
+function changeSetting(key,d){
+  S.settings[key]=Math.max(1,Math.min(key==='pomodoro'?60:30,S.settings[key]+d));
+  document.getElementById(key==='pomodoro'?'setPomo':key==='short'?'setShort':'setLong').textContent=S.settings[key];
+  if(S.mode===key) resetTimer();
+}
+
+/* ═══════════════════════════════════════════
+   SECTIONS TOGGLE
+═══════════════════════════════════════════ */
+function toggleSection(id){
+  const body=document.getElementById(id+'Body');
+  const chevron=document.getElementById(id+'Chevron');
+  const header=document.getElementById(id+'Header');
+  const open=body.classList.toggle('open');
+  if(chevron) chevron.textContent=open?'▲':'▼';
+  if(header) header.classList.toggle('open',open);
+}
+
+/* ═══════════════════════════════════════════
+   PANELS / NAV
+═══════════════════════════════════════════ */
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));
+  document.getElementById('panel'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   THEMES
+═══════════════════════════════════════════ */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.t===t));
+  const themeColors={warm:'#c0522a',windows:'#0078d4',claude:'#1a1523',linux:'#0d1117',mac:'#f5f5f7',android:'#6750a4',iphone:'#007aff'};
+  document.getElementById('themeColorMeta').content=themeColors[t]||'#c0522a';
+  try{localStorage.setItem('pomo_theme',t);}catch(e){}
+}
+// Load saved theme
+try{ const st=localStorage.getItem('pomo_theme'); if(st) setTheme(st); }catch(e){}
+document.getElementById('themeGroup').addEventListener('click',e=>{
+  const dot=e.target.closest('.theme-dot');
+  if(dot) setTheme(dot.dataset.t);
+});
+
+/* ═══════════════════════════════════════════
+   DONATE
+═══════════════════════════════════════════ */
+function openDonate(){ document.getElementById('donateOverlay').classList.add('show'); }
+function closeDonate(){ document.getElementById('donateOverlay').classList.remove('show'); }
+
+/* ═══════════════════════════════════════════
+   TECHNIQUE DETAIL
+═══════════════════════════════════════════ */
+const TECH_DATA={
+  pomodoro:{
+    title:'🍅 Técnica Pomodoro',
+    html:`<h3>Origen</h3><p>Creada por Francesco Cirillo en los años 80, toma su nombre de un timer de cocina con forma de tomate.</p>
+    <h3>Cómo aplicarla</h3>
+    <ul><li><strong>25 minutos de foco</strong> en una sola tarea, sin interrupciones.</li>
+    <li><strong>5 minutos de descanso</strong> al completar cada bloque.</li>
+    <li>Cada <strong>4 bloques</strong>, descanso largo de 15–30 minutos.</li>
+    <li>Anotá las interrupciones externas para atenderlas después.</li></ul>
+    <h3>Por qué funciona</h3><p>La urgencia artificial del timer activa el foco, mientras los descansos regulares previenen la fatiga cognitiva. La técnica también mejora la conciencia sobre cuánto tiempo llevan las tareas.</p>`,
+  },
+  feynman:{
+    title:'🧑‍🏫 Método Feynman',
+    html:`<h3>El principio</h3><p>Desarrollado por el físico Richard Feynman: si no podés explicar un concepto en términos simples, no lo entendés del todo.</p>
+    <h3>Los 4 pasos</h3>
+    <ul><li><strong>Elegí un concepto</strong> que quieras aprender o consolidar.</li>
+    <li><strong>Explicalo en papel</strong> como si le enseñaras a alguien sin conocimiento previo.</li>
+    <li><strong>Identificá las lagunas</strong>: ¿dónde te trabaste? Volvé al material.</li>
+    <li><strong>Simplificá el lenguaje</strong>: si usás jerga, reemplazála por analogías simples.</li></ul>
+    <h3>Ideal para</h3><p>Preparar exámenes, consolidar teoría compleja, generar comprensión profunda en lugar de memorización superficial.</p>`,
+  },
+  spaced:{
+    title:'🗓️ Repetición Espaciada',
+    html:`<h3>La ciencia detrás</h3><p>Hermann Ebbinghaus descubrió la <em>curva del olvido</em>: sin repaso, olvidamos el 70% de lo nuevo en 24h. La solución es repasar justo antes de olvidar.</p>
+    <h3>El sistema</h3>
+    <ul><li><strong>Primer repaso:</strong> 1 día después de estudiar.</li>
+    <li><strong>Segundo:</strong> 3 días después.</li>
+    <li><strong>Tercero:</strong> 7 días después.</li>
+    <li><strong>Cuarto:</strong> 21 días después.</li>
+    <li>Cada repaso exitoso duplica el intervalo siguiente.</li></ul>
+    <h3>Herramientas</h3><p>Anki (tarjetas digitales con algoritmo SRS), RemNote, o simplemente un sistema de tarjetas físicas ordenadas por fecha.</p>`,
+  },
+  activerecall:{
+    title:'🧠 Active Recall',
+    html:`<h3>¿Por qué es tan efectivo?</h3><p>La mayoría estudia <em>leyendo</em>, pero eso es reconocimiento pasivo. El Active Recall fuerza a tu cerebro a <strong>recuperar</strong> información activamente, lo que fortalece las vías neurales mucho más.</p>
+    <h3>Técnicas prácticas</h3>
+    <ul><li><strong>Cerrá el libro</strong> y escribí de memoria todo lo que recordás del tema.</li>
+    <li><strong>Flashcards:</strong> pregunta al frente, respuesta atrás. Repasalas sin mirar.</li>
+    <li><strong>Preguntas de práctica</strong> antes de leer el material.</li>
+    <li><strong>Explicale a alguien</strong> sin mirar tus notas.</li></ul>
+    <h3>Evidencia científica</h3><p>Estudios muestran que el testing frecuente mejora la retención hasta un 50% comparado con releer el mismo material.</p>`,
+  },
+  cornell:{
+    title:'📓 Método Cornell',
+    html:`<h3>La estructura</h3><p>Dividí cada página en tres secciones:
+    </p><ul><li><strong>Columna derecha (70%)</strong>: notas durante la clase o lectura.</li>
+    <li><strong>Columna izquierda (30%)</strong>: palabras clave y preguntas que escribís después.</li>
+    <li><strong>Resumen (pie de página)</strong>: síntesis de lo más importante en 2–3 oraciones.</li></ul>
+    <h3>El proceso R5</h3>
+    <ul><li><strong>Record</strong>: tomá notas en la columna derecha.</li>
+    <li><strong>Reduce</strong>: generá preguntas en la columna izquierda.</li>
+    <li><strong>Recite</strong>: cubrí las notas y respondé las preguntas de memoria.</li>
+    <li><strong>Reflect</strong>: ¿cómo se relaciona con lo que ya sabés?</li>
+    <li><strong>Review</strong>: repasá el resumen periódicamente.</li></ul>`,
+  },
+  deepwork:{
+    title:'⚡ Deep Work',
+    html:`<h3>Definición de Cal Newport</h3><p><em>"Actividad profesional realizada en un estado de concentración sin distracciones al máximo de tus capacidades cognitivas."</em></p>
+    <h3>Principios</h3>
+    <ul><li><strong>Trabajo profundo vs. superficial:</strong> el email y las reuniones son shallow work. El código, la escritura y el aprendizaje complejo requieren deep work.</li>
+    <li><strong>Bloques de tiempo</strong>: reservá slots de 1–4h para trabajo profundo en tu agenda.</li>
+    <li><strong>Eliminación de distractores:</strong> teléfono apagado, notificaciones off, ambiente preparado.</li>
+    <li><strong>Rituales de entrada:</strong> misma música, mismo lugar, mismo ritual para entrenar al cerebro.</li></ul>
+    <h3>Modos</h3><p><strong>Monástico</strong> (eliminación total de lo superficial), <strong>Bimodal</strong> (períodos alternados), <strong>Rítmico</strong> (horario fijo diario, ideal para estudiantes).</p>`,
+  },
+  mindmap:{
+    title:'🗺️ Mapas Mentales',
+    html:`<h3>¿Qué son?</h3><p>Diagramas que organizan información alrededor de un concepto central, ramificándose hacia ideas relacionadas. Inventados/popularizados por Tony Buzan en los 70.</p>
+    <h3>Cómo hacerlos</h3>
+    <ul><li><strong>Centro:</strong> concepto principal en el centro de la página (en horizontal).</li>
+    <li><strong>Ramas principales:</strong> los grandes temas que lo componen.</li>
+    <li><strong>Sub-ramas:</strong> detalles, ejemplos y conexiones.</li>
+    <li>Usá <strong>colores</strong> distintos por rama y <strong>íconos</strong> para activar la memoria visual.</li>
+    <li>Una sola palabra o frase corta por línea.</li></ul>
+    <h3>Cuándo usarlos</h3><p>Ideal para hacer brainstorming, preparar exposiciones, resumir un capítulo complejo o ver las relaciones entre conceptos antes de un examen.</p>`,
+  },
+};
+
+function openTech(id){
+  const t=TECH_DATA[id];
+  if(!t) return;
+  document.getElementById('techTitle').textContent=t.title;
+  document.getElementById('techBody').innerHTML=t.html;
+  document.getElementById('techOverlay').classList.add('show');
+}
+function closeTech(){ document.getElementById('techOverlay').classList.remove('show'); }
+
+/* ═══════════════════════════════════════════
+   MEDITATION
+═══════════════════════════════════════════ */
+const MEDITATIONS={
+  breathing478:{
+    title:'Respiración 4-7-8',
+    totalSec:180,
+    steps:[
+      {text:'Encontrá una postura cómoda. Cerrá los ojos. Soltá los hombros.',dur:8},
+      {text:'Inhalá lentamente por la nariz... 1... 2... 3... 4...',dur:5},
+      {text:'Retené el aire... 1... 2... 3... 4... 5... 6... 7...',dur:8},
+      {text:'Exhalá completamente por la boca... 1... 2... 3... 4... 5... 6... 7... 8...',dur:9},
+      {text:'Inhalá de nuevo... 1... 2... 3... 4...',dur:5},
+      {text:'Retené... 1... 2... 3... 4... 5... 6... 7...',dur:8},
+      {text:'Exhalá... lentamente... soltá toda la tensión...',dur:9},
+      {text:'Inhalá... calma que entra...',dur:5},
+      {text:'Retené... sostenete...',dur:8},
+      {text:'Exhalá... estrés que sale...',dur:9},
+      {text:'Una respiración más... inhalá profundo...',dur:5},
+      {text:'Retené...',dur:8},
+      {text:'Exhalá... perfecto. Abrí los ojos cuando estés listo.',dur:10},
+    ],
+  },
+  mindfulness:{
+    title:'Mindfulness básico',
+    totalSec:300,
+    steps:[
+      {text:'Sentate cómodo, con la espalda recta pero sin tensión. Cerrá suavemente los ojos.',dur:10},
+      {text:'Llevá tu atención a la respiración. No la controles, solo observala.',dur:12},
+      {text:'Notá cómo el aire entra... cómo el pecho o el abdomen se expande...',dur:12},
+      {text:'Y cómo el aire sale... el cuerpo se relaja...',dur:12},
+      {text:'Si tu mente se va a otro lado, está bien. Notalo sin juzgar y volvé a la respiración.',dur:15},
+      {text:'Siguiendo el ritmo natural... entrada... salida...',dur:15},
+      {text:'Notá las sensaciones físicas del momento: temperatura del aire, contacto con la silla, sonidos del entorno.',dur:18},
+      {text:'No tenés que hacer nada más. Solo observar. Solo estar.',dur:15},
+      {text:'Seguí respirando... cada exhalación te ancla más al presente...',dur:15},
+      {text:'Si vienen pensamientos, imaginalos como nubes que pasan. No los retengas.',dur:15},
+      {text:'Respirá... notá la pausa suave entre inhalación y exhalación...',dur:15},
+      {text:'Tomá tres respiraciones profundas. Luego mové los dedos y abrí los ojos.',dur:15},
+      {text:'Bien hecho. Llevá esta calma al trabajo.',dur:10},
+    ],
+  },
+  bodyscan:{
+    title:'Escaneo corporal',
+    totalSec:420,
+    steps:[
+      {text:'Acostá o sentate muy cómodamente. Cerrá los ojos.',dur:8},
+      {text:'Llevá la atención a los pies. ¿Hay tensión? Soltala con cada exhalación.',dur:20},
+      {text:'Subí a los tobillos y pantorrillas. Notaté las sensaciones sin juzgar.',dur:20},
+      {text:'Rodillas y muslos. Si hay tensión, respirá hacia ese lugar y soltá.',dur:20},
+      {text:'Cadera y zona lumbar. Es una zona que solemos tener contraída. Soltá.',dur:20},
+      {text:'Abdomen y pecho. Con cada respiración, expandite más. Más espacio.',dur:20},
+      {text:'Espalda media y alta. Dejá que los hombros se caigan hacia atrás.',dur:20},
+      {text:'Manos y brazos. Soltá cualquier tensión. Que sean pesados, relajados.',dur:20},
+      {text:'Cuello y nuca. Una zona muy común de estrés. Soltá suavemente.',dur:20},
+      {text:'Cara: frente, ojos, mandíbula. Descansá la lengua en el piso de la boca.',dur:20},
+      {text:'Ahora sentí todo el cuerpo al mismo tiempo, relajado y pesado.',dur:20},
+      {text:'Tomá tres respiraciones profundas. Comenzá a mover los dedos. Abrí los ojos.',dur:15},
+    ],
+  },
+  prefocus:{
+    title:'Pre-estudio',
+    totalSec:240,
+    steps:[
+      {text:'Sentate, cerrá los ojos. Tomá tres respiraciones lentas y profundas.',dur:15},
+      {text:'Visualizá lo que querés lograr en esta sesión. Sé específico.',dur:12},
+      {text:'Imaginá que ya terminaste esa tarea. ¿Cómo te sentís? Esa sensación es tu motivación.',dur:15},
+      {text:'Soltá cualquier distracción pendiente. Mentalmente, poné esas preocupaciones en una caja para después.',dur:15},
+      {text:'Notá la energía en tu mente. Estás despejado, enfocado, listo.',dur:12},
+      {text:'Recordá una vez que lograste algo difícil estudiando. Tu cerebro puede hacerlo de nuevo.',dur:15},
+      {text:'Establecé tu intención: "En esta sesión voy a..."  Formalizalo mentalmente.',dur:12},
+      {text:'Tomá una última respiración profunda. Exhalá cualquier resistencia.',dur:10},
+      {text:'Cuando abras los ojos, vas a estar en modo foco. Preparate... tres... dos... uno. ¡Adelante!',dur:10},
+    ],
+  },
+};
+
+let medState={ active:false, session:null, stepIdx:0, startSec:0, totalElapsed:0, stepTimeout:null };
+
+function startMeditation(id){
+  const m=MEDITATIONS[id];
+  if(!m) return;
+  medState={ active:true, session:m, stepIdx:0, startSec:Date.now(), totalElapsed:0, stepTimeout:null };
+  document.getElementById('medGrid').style.opacity='0.4';
+  document.getElementById('medActive').classList.add('show');
+  document.getElementById('medActiveTitle').textContent=m.title;
+  runMedStep();
+}
+
+function runMedStep(){
+  if(!medState.active) return;
+  const {session, stepIdx}=medState;
+  if(stepIdx>=session.steps.length){ stopMeditation(true); return; }
+  const step=session.steps[stepIdx];
+  document.getElementById('medStepText').textContent=step.text;
+  const elapsed=Math.floor((Date.now()-medState.startSec)/1000);
+  const pct=Math.min(100,(elapsed/session.totalSec)*100);
+  document.getElementById('medProgressFill').style.width=pct+'%';
+  const left=Math.max(0,session.totalSec-elapsed);
+  document.getElementById('medTimeLeft').textContent=`${Math.floor(left/60)}:${pad(left%60)} restantes`;
+  if(document.getElementById('voiceToggle').checked) speakText(step.text);
+  medState.stepTimeout=setTimeout(()=>{ medState.stepIdx++; runMedStep(); }, step.dur*1000);
+}
+
+function stopMeditation(completed=false){
+  medState.active=false;
+  clearTimeout(medState.stepTimeout);
+  speechSynthesis.cancel();
+  document.getElementById('medGrid').style.opacity='1';
+  document.getElementById('medActive').classList.remove('show');
+  document.getElementById('medProgressFill').style.width='0%';
+  if(completed) showToast('🧘 Meditación completada. Muy bien.');
+}
+
+/* ═══════════════════════════════════════════
+   SOUND + VOICE
+═══════════════════════════════════════════ */
+function playAlarm(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Three-pulse alarm
+    [[0,880],[0.4,880],[0.8,1047],[1.2,1047],[1.6,1318]].forEach(([t,freq])=>{
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type='square'; osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0,ctx.currentTime+t);
+      gain.gain.linearRampToValueAtTime(0.3,ctx.currentTime+t+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.3);
+      osc.start(ctx.currentTime+t); osc.stop(ctx.currentTime+t+0.35);
+    });
+  }catch(e){}
+}
+
+function speakText(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='es-ES'; u.rate=0.88; u.pitch=1; u.volume=0.9;
+  speechSynthesis.speak(u);
+}
+
+function speakSequence(msgs){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  msgs.forEach((msg,i)=>{
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(msg);
+      u.lang='es-ES'; u.rate=0.9; u.pitch=1.05; u.volume=1;
+      speechSynthesis.speak(u);
+    }, i*2000);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   MISC UI
+═══════════════════════════════════════════ */
+function updateTomatoes(){
+  const c=S.pomodoros%4;
+  document.querySelectorAll('.tomato').forEach((el,i)=>el.classList.toggle('done',i<(c===0?4:c)));
+}
+
+function pulseClock(){
+  const w=document.getElementById('clockWrap');
+  w.classList.add('pulsing'); setTimeout(()=>w.classList.remove('pulsing'),2200);
+}
+
+/* ═══════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&e.target.tagName!=='BUTTON'&&e.target.tagName!=='TEXTAREA'){
+    e.preventDefault(); S.running?stopTimer():startTimer();
+  }
+  if(e.key==='Escape'){
+    document.getElementById('noteOverlay').classList.remove('show');
+    document.getElementById('techOverlay').classList.remove('show');
+    document.getElementById('donateOverlay').classList.remove('show');
+  }
+});
+
+/* Close overlays on bg click */
+['noteOverlay','donateOverlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(e.target.id===id) document.getElementById(id).classList.remove('show');
+  });
+});
+document.getElementById('techOverlay').addEventListener('click',e=>{
+  if(e.target.id==='techOverlay') closeTech();
+});
+
+/* ═══════════════════════════════════════════
+   MODE / CONTROL EVENTS
+═══════════════════════════════════════════ */
+document.getElementById('btnPlay').addEventListener('click',()=>S.running?stopTimer():startTimer());
+document.getElementById('btnReset').addEventListener('click',resetTimer);
+document.getElementById('btnSkip').addEventListener('click',()=>{
+  const modes=['pomodoro','short','long'];
+  setMode(modes[(modes.indexOf(S.mode)+1)%modes.length]);
+});
+document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+
+/* ═══════════════════════════════════════════
+   PWA MANIFEST (inline blob)
+═══════════════════════════════════════════ */
+try{
+  const manifest={
+    name:'Pomodoro',short_name:'Pomodoro',
+    start_url:'.',display:'standalone',
+    background_color:'#f5ede0',theme_color:'#c0522a',
+    icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23c0522a'/%3E%3Cellipse cx='96' cy='108' rx='60' ry='58' fill='%23f06040'/%3E%3Crect x='88' y='36' width='8' height='28' rx='4' fill='%232d6a2d'/%3E%3Ctext x='96' y='122' text-anchor='middle' font-family='sans-serif' font-size='42' font-weight='bold' fill='white'%3E25%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const link=document.createElement('link');
+  link.rel='manifest'; link.href=URL.createObjectURL(blob);
+  document.head.appendChild(link);
+}catch(e){}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+updateDisplay();
+renderHistory();
 </script>
 </body>
 </html>
